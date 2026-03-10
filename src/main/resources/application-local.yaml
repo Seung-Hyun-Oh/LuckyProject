@@ -1,11 +1,11 @@
-jwt: #SecretKeyGenerator에서 만든키로 적용 바람
+jwt: #SecretKeyGenerator?? 留??ㅻ? ???諛?
   secret: 2T1znt09eoSzko3WJz2ZBwXZgPZZK63Ls4O1fQft5OI=
 
 spring:
   datasource:
     url: jdbc:mariadb://localhost:3306/lgiadmin?serverTimezone=UTC&characterEncoding=UTF8
     username: root
-    # 암호화된 비밀번호 예시
+    # ??명? 鍮諛踰????
     #password: osh3069@
     password: "ENC(4OFRbN0BoqFVQ9VJ1gjU2sMGZawv6Fnv)"
     driver-class-name: org.mariadb.jdbc.Driver

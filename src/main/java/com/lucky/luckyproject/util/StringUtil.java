@@ -13,13 +13,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * 문자??변?? 검�?�?케?�스 변경을 ?�한 공통 ?�틸리티?�니??
- * 2025??기�? 고성???�규??처리?� Java Stream API�??�용?�니??
+ * 문자열 변환, 검증 및 케이스 변경을 위한 공통 유틸리티입니다.
+ * 2025년 기준 고성능 정규식 처리와 Java Stream API를 활용합니다.
  *
  * @author 2025 Developer
  * @since 2025-12-24
  */
-@Tag(name = "String Utility", description = "문자??조작 �?변???�구")
+@Tag(name = "String Utility", description = "문자열 조작 및 변환 도구")
 public class StringUtil {
 
     private static final Pattern CAMEL_CASE_PATTERN = Pattern.compile("([a-z0-9])([A-Z])");
@@ -28,42 +28,42 @@ public class StringUtil {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
-     * 값이 비어?�거??공백�??�함?�어 ?�는지 ?�인?�니??
+     * 값이 비어있거나 공백만 포함되어 있는지 확인합니다.
      */
-    @Operation(summary = "문자??비어?�음 ?�인", description = "null, �?문자?? ?��? 공백�??�는 경우 true�?반환?�니??")
-    public static boolean isEmpty(@Schema(description = "검???�??객체") Object obj) {
+    @Operation(summary = "문자열 비어있음 확인", description = "null, 빈 문자열, 혹은 공백만 있는 경우 true를 반환합니다.")
+    public static boolean isEmpty(@Schema(description = "검사 대상 객체") Object obj) {
         return obj == null || !StringUtils.hasText(obj.toString());
     }
 
     /**
-     * isEmpty??반�? 결과�?반환?�니??
+     * isEmpty의 반대 결과를 반환합니다.
      */
     public static boolean isNotEmpty(Object obj) {
         return !isEmpty(obj);
     }
 
     /**
-     * 문자?�이 비어?�을 경우 기본값을 반환?�니??
+     * 문자열이 비어있을 경우 기본값을 반환합니다.
      */
-    @Operation(summary = "기본 문자??처리", description = "값이 비어?�다�?지?�된 기본값을 반환?�니??")
+    @Operation(summary = "기본 문자열 처리", description = "값이 비어있다면 지정된 기본값을 반환합니다.")
     public static String defaultString(String str, String defaultStr) {
         return isEmpty(str) ? defaultStr : str;
     }
 
     /**
-     * 카멜케?�스(camelCase)�??�네?�크케?�스(snake_case)�?변?�합?�다.
-     * DB 컬럼�??�동 ?�성 ?�에 ?�용?�니??
+     * 카멜케이스(camelCase)를 스네이크케이스(snake_case)로 변환합니다.
+     * DB 컬럼명 자동 생성 등에 활용됩니다.
      */
-    @Operation(summary = "Snake Case 변??, description = "camelCase�?snake_case�?변?�합?�다.")
+    @Operation(summary = "Snake Case 변환", description = "camelCase를 snake_case로 변환합니다.")
     public static String toSnakeCase(String str) {
         if (isEmpty(str)) return str;
         return CAMEL_CASE_PATTERN.matcher(str).replaceAll("$1_$2").toLowerCase();
     }
 
     /**
-     * ?�네?�크케?�스(snake_case)�?카멜케?�스(camelCase)�?변?�합?�다.
+     * 스네이크케이스(snake_case)를 카멜케이스(camelCase)로 변환합니다.
      */
-    @Operation(summary = "Camel Case 변??, description = "snake_case�?camelCase�?변?�합?�다.")
+    @Operation(summary = "Camel Case 변환", description = "snake_case를 camelCase로 변환합니다.")
     public static String toCamelCase(String str) {
         if (isEmpty(str)) return str;
 
@@ -82,18 +82,18 @@ public class StringUtil {
     }
 
     /**
-     * 리스?�의 문자?�을 구분?�로 ?�결?�니??
+     * 리스트의 문자열을 구분자로 연결합니다.
      */
-    @Operation(summary = "문자??결합", description = "리스???�소?�을 ?�정 구분?�로 ?�결?�니??")
+    @Operation(summary = "문자열 결합", description = "리스트 요소들을 특정 구분자로 연결합니다.")
     public static String join(List<String> list, String delimiter) {
         if (list == null || list.isEmpty()) return "";
         return String.join(defaultString(delimiter, ""), list);
     }
 
     /**
-     * 구분?�로 ?�결??문자?�을 리스?�로 분리?�니?? (�?�??�외)
+     * 구분자로 연결된 문자열을 리스트로 분리합니다. (빈 값 제외)
      */
-    @Operation(summary = "문자??분리", description = "구분?�로 ?�결??문자?�을 리스?�로 변?�하�?공백?� ?�거?�니??")
+    @Operation(summary = "문자열 분리", description = "구분자로 연결된 문자열을 리스트로 변환하며 공백은 제거합니다.")
     public static List<String> splitToList(String str, String delimiter) {
         if (isEmpty(str)) return List.of();
         return Arrays.stream(str.split(Pattern.quote(delimiter)))
@@ -103,19 +103,19 @@ public class StringUtil {
     }
 
     /**
-     * [추�? 기능] HTML ?�그�??�거?�니?? (XSS 방어 �?로그 기록??
+     * [추가 기능] HTML 태그를 제거합니다. (XSS 방어 및 로그 기록용)
      */
-    @Operation(summary = "HTML ?�그 ?�거", description = "문자???�의 모든 HTML ?�그�??�거?�고 ?�수 ?�스?�만 추출?�니??")
+    @Operation(summary = "HTML 태그 제거", description = "문자열 내의 모든 HTML 태그를 제거하고 순수 텍스트만 추출합니다.")
     public static String stripHtml(String html) {
         if (isEmpty(html)) return html;
         return HTML_TAG_PATTERN.matcher(html).replaceAll("");
     }
 
     /**
-     * [추�? 기능] 지?�된 길이???�덤 문자?�을 ?�성?�니?? (?�시 비�?번호, ?�증코드??
+     * [추가 기능] 지정된 길이의 랜덤 문자열을 생성합니다. (임시 비밀번호, 인증코드용)
      */
-    @Operation(summary = "?�덤 문자???�성", description = "?�문 ?�?�문?��? ?�자�?조합?�여 고유???�덤 코드�??�성?�니??")
-    public static String randomAlphanumeric(@Parameter(description = "?�성??길이", example = "8") int length) {
+    @Operation(summary = "랜덤 문자열 생성", description = "영문 대소문자와 숫자를 조합하여 고유한 랜덤 코드를 생성합니다.")
+    public static String randomAlphanumeric(@Parameter(description = "생성할 길이", example = "8") int length) {
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
             sb.append(RANDOM_CHARS.charAt(RANDOM.nextInt(RANDOM_CHARS.length())));

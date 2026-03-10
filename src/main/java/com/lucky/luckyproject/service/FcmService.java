@@ -1,6 +1,6 @@
 package com.lucky.luckyproject.service;
 
-import com.lucky.luckyproject.dto.FcmRequestDto;
+import com.concentrix.lgintegratedadmin.dto.FcmRequestDto;
 import com.google.firebase.messaging.*;
 import org.springframework.stereotype.Service;
 

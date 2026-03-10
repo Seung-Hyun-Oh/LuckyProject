@@ -1,7 +1,7 @@
 package com.lucky.luckyproject.controller;
 
-import com.lucky.luckyproject.util.ApiResponse;
-import com.lucky.luckyproject.util.ApiUtil;
+import com.concentrix.lgintegratedadmin.util.ApiResponse;
+import com.concentrix.lgintegratedadmin.util.ApiUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-@Tag(name = "?��? ?�동 관�?API", description = "PG/카드?????�???�스???�터?�이???�어")
+@Tag(name = "외부 연동 관리 API", description = "PG/카드사 등 대외 시스템 인터페이스 제어")
 @RestController
 @RequestMapping("/api/v1/external")
 @RequiredArgsConstructor
@@ -27,37 +27,37 @@ public class ExternalInterfaceController {
     private final View error;
 
     @Operation(
-            summary = "?��? 결제 ?�태 조회",
-            description = "ApiUtil???�용?�여 ?��? ?�동 ?�버로�???결제 ?�태 ?�보�??�기?�으�?조회?�니??"
+            summary = "외부 결제 상태 조회",
+            description = "ApiUtil을 사용하여 외부 연동 서버로부터 결제 상태 정보를 동기식으로 조회합니다."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "조회 ?�공",
+                    description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = ApiResponse.class))
             ),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "504", description = "?��? ?�스???�?�아??)
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "504", description = "외부 시스템 타임아웃")
     })
     @GetMapping("/payment-status/{transactionId}")
     public ApiResponse<Object> getExternalPaymentStatus(
             @Parameter(description = "거래 번호", example = "TX_20260102_001")
             @PathVariable String transactionId) {
 
-        // ?��? ?�스??URL (?�시)
+        // 외부 시스템 URL (예시)
         String targetUrl = "api.external-pg.com" + transactionId;
 
         try {
-            // ApiUtil??GET 메서???�용
+            // ApiUtil의 GET 메서드 활용
             Object result = apiUtil.get(targetUrl, Object.class);
             return ApiResponse.success(result);
         } catch (Exception e) {
-            return ApiResponse.error("?��? ?�스???�신 �??�류가 발생?�습?�다: " + e.getMessage());
+            return ApiResponse.error("외부 시스템 통신 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
     @Operation(
-            summary = "?��? 결제 ?�인 ?�청",
-            description = "결제 ?�이?��? ?��? ?�스?�에 ?�기?�으�?POST�??�송?�고 결과�?반환받습?�다."
+            summary = "외부 결제 승인 요청",
+            description = "결제 데이터를 외부 시스템에 동기식으로 POST로 전송하고 결과를 반환받습니다."
     )
     @PostMapping("/approve")
     public ApiResponse<Map<String, Object>> requestApprove(
@@ -66,38 +66,38 @@ public class ExternalInterfaceController {
         String targetUrl = "api.external-pg.com";
 
         try {
-            // ApiUtil??POST 메서???�용 (?�기 방식)
+            // ApiUtil의 POST 메서드 활용 (동기 방식)
             @SuppressWarnings("unchecked")
             Map<String, Object> response = apiUtil.post(targetUrl, paymentData, Map.class);
 
             return ApiResponse.success(response);
         } catch (Exception e) {
-            // ?�?�아??�??�신 ?�러 처리
-            return ApiResponse.error("결제 ?�인 ?�청 ?�패: " + e.getMessage());
+            // 타임아웃 및 통신 에러 처리
+            return ApiResponse.error("결제 승인 요청 실패: " + e.getMessage());
         }
     }
 
     @Operation(
-        summary = "?��? 결제 ?�인 ?�청",
-        description = "결제 ?�이?��? ?��? ?�스?�에 비동기식?�로 POST�??�송?�고 결과�?반환받습?�다."
+        summary = "외부 결제 승인 요청",
+        description = "결제 데이터를 외부 시스템에 비동기식으로 POST로 전송하고 결과를 반환받습니다."
     )
     @PostMapping("/approveAsync")
     public Mono<ApiResponse<Map<String, Object>>> requestApproveAsync(@RequestBody Map<String, Object> paymentData) {
-        String targetUrl = "api.external-pg.com"; // URL ?�로?�콜 명시 권장
+        String targetUrl = "api.external-pg.com"; // URL 프로토콜 명시 권장
 
         return apiUtil.postAsync(targetUrl, paymentData, Map.class)
             .map(res -> {
-                log.info("비동�?결과�? {}", res);
+                log.info("비동기 결과값: {}", res);
                 return ApiResponse.success((Map<String, Object>) res);
             })
             .onErrorResume(e -> {
-                log.error("?�러 발생: {}", e.getMessage());
-                return Mono.just(ApiResponse.error("결제 ?�인 ?�청 ?�패: " + e.getMessage()));
+                log.error("에러 발생: {}", e.getMessage());
+                return Mono.just(ApiResponse.error("결제 승인 요청 실패: " + e.getMessage()));
             });
     }
     @Operation(
-        summary = "?��? 결제 ?�인 ?�청",
-        description = "결제 ?�이?��? ?��? ?�스?�에 ?�기?�으�?POST�??�송?�고 결과�?반환받습?�다."
+        summary = "외부 결제 승인 요청",
+        description = "결제 데이터를 외부 시스템에 동기식으로 POST로 전송하고 결과를 반환받습니다."
     )
     @PostMapping("/approveAsync1")
     public ApiResponse<Map<String, Object>> requestApproveAsync1(
@@ -106,16 +106,16 @@ public class ExternalInterfaceController {
         String targetUrl = "api.external-pg.com";
 
         try {
-            // subscribe ?�??block()???�용?�여 ?�답?????�까지 기다�?
+            // subscribe 대신 block()을 사용하여 응답이 올 때까지 기다림
             @SuppressWarnings("unchecked")
             Map<String, Object> response = (Map<String, Object>) apiUtil.postAsync(targetUrl, paymentData, Map.class)
-                    .block(); // 비동�??�수�??�출?�되, ?�기??결과가 ?�올 ?�까지 ?��?
+                    .block(); // 비동기 함수를 호출하되, 여기서 결과가 나올 때까지 대기
 
-            log.info("결과�??�신 ?�료: {}", response);
+            log.info("결과값 수신 완료: {}", response);
             return ApiResponse.success(response);
         } catch (Exception e) {
-            log.error("?�신 ?�러: {}", e.getMessage());
-            return ApiResponse.error("결제 ?�인 ?�청 ?�패: " + e.getMessage());
+            log.error("통신 에러: {}", e.getMessage());
+            return ApiResponse.error("결제 승인 요청 실패: " + e.getMessage());
         }
     }
 }

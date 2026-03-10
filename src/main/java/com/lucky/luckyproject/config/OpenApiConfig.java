@@ -14,15 +14,15 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
             .info(new Info()
-                .title("LG.COM ?�합?�드�?API ?�비??)
+                .title("LG.COM 통합어드민 API 서비스")
                 .version("1.0.0")
-                .description("LG.COM ?�합?�드�?Spring Boot ?�용 가?�드")
+                .description("LG.COM 통합어드민 Spring Boot 적용 가이드")
             )
             .components(new Components()
-                // 1. 공통?�로 ?�용???�더 ?�의
+                // 1. 공통으로 사용할 헤더 정의
                 .addParameters("Accept-Language", new HeaderParameter()
                     .name("Accept-Language")
-                    .description("?�어 ?�정 (ko, en)")
+                    .description("언어 설정 (ko, en)")
                     .schema(new StringSchema()._default("ko"))
                     .required(false)
                 )

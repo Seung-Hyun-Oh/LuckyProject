@@ -4,27 +4,22 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
-import java.util.Map;
 
 /**
- * RestTemplate???�용???��? ?�스??HTTP ?�동 ?�틸리티?�니??
- * ?�기 방식??API ?�출??지?�하�? 공통 ?�더 ?�정 �??�외 로깅??처리?�니??
+ * RestTemplate을 활용한 외부 시스템 HTTP 연동 유틸리티입니다.
+ * 동기 방식의 API 호출을 지원하며, 공통 헤더 설정 및 예외 로깅을 처리합니다.
  *
  * @author 2025 Developer
  * @since 2025-12-24
  */
 @Slf4j
-@Tag(name = "RestTemplate Utility", description = "기존 RestTemplate 기반 API ?�동 ?�구")
+@Tag(name = "RestTemplate Utility", description = "기존 RestTemplate 기반 API 연동 도구")
 @Component
 public class RestTemplateUtil {
 
@@ -35,15 +30,15 @@ public class RestTemplateUtil {
     }
 
     /**
-     * POST ?�청 - JSON 본문???�송?�여 ?�이?��? ?�성?�거??처리?�니??
+     * POST 요청 - JSON 본문을 전송하여 데이터를 생성하거나 처리합니다.
      *
-     * @param url   ?�출 ?�??URL
-     * @param body  ?�청 본문 객체
-     * @param clazz ?�답??변?�할 ?�래???�??
-     * @return ??��?�화???�답 객체
+     * @param url   호출 대상 URL
+     * @param body  요청 본문 객체
+     * @param clazz 응답을 변환할 클래스 타입
+     * @return 역직렬화된 응답 객체
      */
-    @Operation(summary = "POST ?�출", description = "JSON ?�식???�이?��? POST 방식?�로 ?�송?�니??")
-    public <T> T post(@Parameter(description = "?�??URL") String url, Object body, Class<T> clazz) {
+    @Operation(summary = "POST 호출", description = "JSON 형식의 데이터를 POST 방식으로 전송합니다.")
+    public <T> T post(@Parameter(description = "대상 URL") String url, Object body, Class<T> clazz) {
         // Executes POST request; returns deserialized response or throws exception
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -59,14 +54,14 @@ public class RestTemplateUtil {
     }
 
     /**
-     * GET ?�청 - ?�??URL로�????�보�?조회?�니??
+     * GET 요청 - 대상 URL로부터 정보를 조회합니다.
      *
-     * @param url   ?�출 ?�??URL
-     * @param clazz ?�답??변?�할 ?�래???�??
-     * @return ??��?�화???�답 객체
+     * @param url   호출 대상 URL
+     * @param clazz 응답을 변환할 클래스 타입
+     * @return 역직렬화된 응답 객체
      */
-    @Operation(summary = "GET ?�출", description = "?��? ?�원??조회?�니??")
-    public <T> T get(@Parameter(description = "?�??URL") String url, Class<T> clazz) {
+    @Operation(summary = "GET 호출", description = "외부 자원을 조회합니다.")
+    public <T> T get(@Parameter(description = "대상 URL") String url, Class<T> clazz) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -82,12 +77,12 @@ public class RestTemplateUtil {
     }
 
     /**
-     * PUT ?�청 - ?�보�??�정?�니??
+     * PUT 요청 - 정보를 수정합니다.
      *
-     * @param url  ?�출 ?�??URL
-     * @param body ?�정???�이??객체
+     * @param url  호출 대상 URL
+     * @param body 수정할 데이터 객체
      */
-    @Operation(summary = "PUT ?�출", description = "기존 ?�원???�정?�기 ?�해 ?�이?��? ?�송?�니??")
+    @Operation(summary = "PUT 호출", description = "기존 자원을 수정하기 위해 데이터를 전송합니다.")
     public void put(String url, Object body) {
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -103,11 +98,11 @@ public class RestTemplateUtil {
     }
 
     /**
-     * DELETE ?�청 - ?�보�???��?�니??
+     * DELETE 요청 - 정보를 삭제합니다.
      *
-     * @param url ?�출 ?�??URL
+     * @param url 호출 대상 URL
      */
-    @Operation(summary = "DELETE ?�출", description = "지?�된 URL???�원????��?�니??")
+    @Operation(summary = "DELETE 호출", description = "지정된 URL의 자원을 삭제합니다.")
     public void delete(String url) {
         try {
             log.info("[RestTemplate DELETE] URL: {}", url);
@@ -119,9 +114,9 @@ public class RestTemplateUtil {
     }
 
     /**
-     * DELETE ?�청 (Body ?�함) - ?�더?� 바디가 ?�요???�수 ??�� ?�청 ???�용?�니??
+     * DELETE 요청 (Body 포함) - 헤더와 바디가 필요한 특수 삭제 요청 시 사용합니다.
      */
-    @Operation(summary = "DELETE ?�출 (Body ?�함)", description = "??�� ?�청 ??JSON Body�??�함?�여 ?�송?�니??")
+    @Operation(summary = "DELETE 호출 (Body 포함)", description = "삭제 요청 시 JSON Body를 포함하여 전송합니다.")
     public <T> T delete(String url, Object body, Class<T> clazz) {
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -138,14 +133,14 @@ public class RestTemplateUtil {
     }
 
     /**
-     * 커스?� ?�더�??�함???�연??API ?�출
-     * @param url     ?�??URL
-     * @param method  HTTP 메서??(GET, POST ??
-     * @param headers ?�송???�더 Map
-     * @param body    ?�송??본문 (?�을 경우 null)
-     * @param clazz   ?�답 ?�??
+     * 커스텀 헤더를 포함한 유연한 API 호출
+     * @param url     대상 URL
+     * @param method  HTTP 메서드 (GET, POST 등)
+     * @param headers 전송할 헤더 Map
+     * @param body    전송할 본문 (없을 경우 null)
+     * @param clazz   응답 타입
      */
-    @Operation(summary = "커스?� ?�더 ?�출", description = "?�증 ?�큰 ???�수 ?�더�??�함?�여 API�??�출?�니??")
+    @Operation(summary = "커스텀 헤더 호출", description = "인증 토큰 등 특수 헤더를 포함하여 API를 호출합니다.")
     public <T> T exchangeWithHeaders(String url, HttpMethod method, HttpHeaders headers, Object body, Class<T> clazz) {
         if (headers.getContentType() == null) headers.setContentType(MediaType.APPLICATION_JSON);
 

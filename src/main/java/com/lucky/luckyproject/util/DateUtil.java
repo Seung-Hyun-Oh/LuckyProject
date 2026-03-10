@@ -7,22 +7,22 @@ import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
- * ?�짜 �??�간 처리�??�한 공통 ?�틸리티 ?�래??
+ * 날짜 및 시간 처리를 위한 공통 유틸리티 클래스
  *
- * <p>???�래?�는 Java 8(JDK 1.8) ?�상?�서 ?�입??java.time ?�키지�?기반?�로 ??</p>
+ * <p>이 클래스는 Java 8(JDK 1.8) 이상에서 도입된 java.time 패키지를 기반으로 함.</p>
  *
  * @since 1.8
- * @version 1.1 (2025.12.18 기�? JDK 17 최적??
+ * @version 1.1 (2025.12.18 기준 JDK 17 최적화)
  */
 public class DateUtil {
 
-    /** 기본 ?�짜/?�간 ?�맷: yyyy-MM-dd HH:mm:ss */
+    /** 기본 날짜/시간 포맷: yyyy-MM-dd HH:mm:ss */
     public static final String DEFAULT_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     /**
-     * ?�재 ?�스?�의 ?�짜?� ?�간??기본 ?�맷(yyyy-MM-dd HH:mm:ss)?�로 반환?�니??
+     * 현재 시스템의 날짜와 시간을 기본 포맷(yyyy-MM-dd HH:mm:ss)으로 반환합니다.
      *
-     * @return ?�재 ?�간 문자??
+     * @return 현재 시간 문자열
      * @since 1.8
      */
     public static String getCurrentDateTime() {
@@ -30,27 +30,27 @@ public class DateUtil {
     }
 
     /**
-     * ?�력받�? LocalDateTime 객체�?지?�된 ?�턴??문자?�로 변?�합?�다.
+     * 입력받은 LocalDateTime 객체를 지정된 패턴의 문자열로 변환합니다.
      *
-     * @param dateTime 변?�할 ?�짜 객체 (null 불�?)
-     * @param pattern  ?�용???�맷 ?�턴 (?? yyyyMMdd)
-     * @return ?�맷?�된 ?�짜 문자??
-     * @throws NullPointerException dateTime ?�는 pattern??null??경우 발생
+     * @param dateTime 변환할 날짜 객체 (null 불가)
+     * @param pattern  적용할 포맷 패턴 (예: yyyyMMdd)
+     * @return 포맷팅된 날짜 문자열
+     * @throws NullPointerException dateTime 또는 pattern이 null일 경우 발생
      * @since 1.8
      */
     public static String format(LocalDateTime dateTime, String pattern) {
-        Objects.requireNonNull(dateTime, "dateTime 객체??null?????�습?�다.");
-        Objects.requireNonNull(pattern, "pattern 문자?��? null?????�습?�다.");
+        Objects.requireNonNull(dateTime, "dateTime 객체는 null일 수 없습니다.");
+        Objects.requireNonNull(pattern, "pattern 문자열은 null일 수 없습니다.");
         return dateTime.format(DateTimeFormatter.ofPattern(pattern));
     }
 
     /**
-     * ?�정 ?�짜 문자?�이 ?�효?��? 검증하거나 ?�맷??변경할 ???�용?�니??
+     * 특정 날짜 문자열이 유효한지 검증하거나 포맷을 변경할 때 사용합니다.
      *
-     * @param dateStr 변?�할 ?�짜 문자??
-     * @param fromPattern ?�재 ?�턴
-     * @param toPattern   변경할 ?�턴
-     * @return 변경된 ?�짜 문자??
+     * @param dateStr 변환할 날짜 문자열
+     * @param fromPattern 현재 패턴
+     * @param toPattern   변경할 패턴
+     * @return 변경된 날짜 문자열
      * @since 1.8
      */
     public static String convertFormat(String dateStr, String fromPattern, String toPattern) {
@@ -59,7 +59,7 @@ public class DateUtil {
     }
 
     /**
-     * ???�짜 ?�이???�수(Days) 차이 계산
+     * 두 날짜 사이의 일수(Days) 차이 계산
      * @param start
      * @param end
      * @return
@@ -69,7 +69,7 @@ public class DateUtil {
     }
 
     /**
-     * ?�정 ?�간만큼 ?�하�?빼기
+     * 특정 시간만큼 더하기/빼기
      * @param time
      * @param hours
      * @return

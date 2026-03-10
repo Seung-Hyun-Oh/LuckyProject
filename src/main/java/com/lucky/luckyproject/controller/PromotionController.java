@@ -1,8 +1,8 @@
 package com.lucky.luckyproject.controller;
 
-import com.lucky.luckyproject.domain.MemberGrade;
-import com.lucky.luckyproject.domain.PromotionType;
-import com.lucky.luckyproject.util.PromotionUtil;
+import com.concentrix.lgintegratedadmin.domain.MemberGrade;
+import com.concentrix.lgintegratedadmin.domain.PromotionType;
+import com.concentrix.lgintegratedadmin.util.PromotionUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-@Tag(name = "Promotion", description = "?�커머스 ?�로모션 계산 API")
+@Tag(name = "Promotion", description = "이커머스 프로모션 계산 API")
 @RestController
 @RequestMapping("/api/promotion")
 public class PromotionController {
 
-    @Operation(summary = "?�상 ?�인 금액 계산", description = "?�품 가격과 ?�로모션 ?�보�?기반?�로 최종 ?�인?�을 계산?�니??")
+    @Operation(summary = "예상 할인 금액 계산", description = "상품 가격과 프로모션 정보를 기반으로 최종 할인액을 계산합니다.")
     @GetMapping("/calculate")
     public ResponseEntity<Map<String, Object>> getDiscount(
         @RequestParam BigDecimal price,
@@ -37,7 +37,7 @@ public class PromotionController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "최종 ?�택가 계산", description = "쿠폰, �?구매, ?�급 ?�인??모두 ?�용??최종가�?계산?�니??")
+    @Operation(summary = "최종 혜택가 계산", description = "쿠폰, 첫 구매, 등급 할인을 모두 적용한 최종가를 계산합니다.")
     @PostMapping("/calculate-benefit")
     public ResponseEntity<Map<String, Object>> calculateAllBenefits(
         @RequestParam BigDecimal originalPrice,
@@ -46,11 +46,11 @@ public class PromotionController {
     {
         BigDecimal currentPrice = originalPrice;
 
-        // 1. �?구매 ?�인 ?�용 (10%)
+        // 1. 첫 구매 할인 적용 (10%)
         BigDecimal firstDiscount = PromotionUtil.calculateFirstPurchaseDiscount(originalPrice, isFirstPurchase);
         currentPrice = currentPrice.subtract(firstDiscount);
 
-        // 2. ?�급 ?�인 ?�용 (�?구매 ?�인??금액 기�? ?��? ?��? 기�? - ?�책???�라 ?�택)
+        // 2. 등급 할인 적용 (첫 구매 할인된 금액 기준 혹은 원가 기준 - 정책에 따라 선택)
         BigDecimal gradeDiscount = PromotionUtil.calculateGradeDiscount(currentPrice, userGrade);
         currentPrice = currentPrice.subtract(gradeDiscount);
 

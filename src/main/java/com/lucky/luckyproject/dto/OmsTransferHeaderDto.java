@@ -16,7 +16,7 @@ public class OmsTransferHeaderDto {
     private String BSTKD;
     private String BUKRS;
     private String CITY;
-    private String COUNTRY; // ???�드�??�용?�여 조건부 로직 처리
+    private String COUNTRY; // 이 필드를 사용하여 조건부 로직 처리
     private String KUNAG;
     private String KUNWE;
     private String LOCATION;
@@ -52,13 +52,13 @@ public class OmsTransferHeaderDto {
     private String ZZ1_INV_PRINT_FLAG_SDH;
     private String ZZ1_REF_DOCUMENT_SDH;
 
-    // 브라�??�용 ?�드 (COUNTRY가 'BR'??경우 ?�효)
+    // 브라질 전용 필드 (COUNTRY가 'BR'일 경우 유효)
     private String CREDIT_CARD_TYPE;
     private String DISTRICT;
     private String BUYER_TAX_REGIST;
     private String ZZ1_CNSMR_VAT_SDH;
     private String ZTERM;
 
-    // ?�리?� ?�용 ?�드 (COUNTRY가 'PH'??경우 ?�효)
+    // 필리핀 전용 필드 (COUNTRY가 'PH'일 경우 유효)
     private String PROMOTION_APPLY_FLAG;
 }

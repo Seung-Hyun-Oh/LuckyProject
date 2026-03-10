@@ -6,7 +6,7 @@ public class UpperSnakeCaseStrategy extends PropertyNamingStrategies.SnakeCaseSt
     @Override
     public String translate(String input) {
         if (input == null) return input;
-        // 기본 snake_case�?변?????�문자�?변�?
+        // 기본 snake_case로 변환 후 대문자로 변경
         return super.translate(input).toUpperCase();
     }
 }

@@ -1,6 +1,6 @@
 package com.lucky.luckyproject.security;
 
-import com.lucky.luckyproject.dto.UserDto;
+import com.concentrix.lgintegratedadmin.dto.UserDto;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,53 +17,53 @@ import java.util.Collections;
 import java.util.Date;
 
 /**
- * JWT(JSON Web Token) ?�성 �??�효??검증을 ?�당?�는 컴포?�트
+ * JWT(JSON Web Token) 생성 및 유효성 검증을 담당하는 컴포넌트
  *
- * <p>?�스?�의 ?�증 �??��?(RBAC)�??�한 ?�큰 기반 보안 체계�?관리함.</p>
- * <p>AD(Active Directory) ?�동 ??발급?�는 ?�용???�보�?기반?�로 ?�큰???�성??</p>
+ * <p>시스템의 인증 및 인가(RBAC)를 위한 토큰 기반 보안 체계를 관리함.</p>
+ * <p>AD(Active Directory) 연동 후 발급되는 사용자 정보를 기반으로 토큰을 생성함.</p>
  *
  * @since 2026.01.05
- * @author ?�로?�트 ?�당??
+ * @author 프로젝트 담당자
  */
 @Component
-@Tag(name = "Security Config", description = "?�증/?��? �??�큰 관�??�정")
+@Tag(name = "Security Config", description = "인증/인가 및 토큰 관리 설정")
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Schema(description = "?�큰 ?�효 ?�간 (1?�간)", example = "3600000")
+    @Schema(description = "토큰 유효 시간 (1시간)", example = "3600000")
     private final long EXPIRATION_TIME = 3600000;
 
     /**
-     * ?�용???�보�?기반?�로 JWT ?�큰 ?�성
+     * 사용자 정보를 기반으로 JWT 토큰 생성
      *
-     * @param userDto AD �?DB?�서 조회???�용???�보 객체
-     * @return ?�성??JWT Bearer ?�큰 문자??
+     * @param userDto AD 및 DB에서 조회된 사용자 정보 객체
+     * @return 생성된 JWT Bearer 토큰 문자열
      */
-    @Operation(summary = "JWT ?�큰 ?�성", description = "로그???�공 ???�용?�의 ID, ?�명, 권한 ?�보�??�함???�호???�큰???�성?�니??", hidden = true)
+    @Operation(summary = "JWT 토큰 생성", description = "로그인 성공 시 사용자의 ID, 성명, 권한 정보를 포함한 암호화 토큰을 생성합니다.", hidden = true)
     public String createToken(UserDto userDto) {
-        // 2026??보안 권장?�항: 최소 256비트 ?�상???�크�????�용 (HS256)
+        // 2026년 보안 권장사항: 최소 256비트 이상의 시크릿 키 사용 (HS256)
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
 
         return Jwts.builder()
-                .subject(userDto.getUsrId())          // Subject: ?�용??고유 ?�별??ID)
-                .claim("email", userDto.getEmail())   // Claim: ?�용???�메??
-                .claim("name", userDto.getUsrNm())    // Claim: ?�용???�명
-                .claim("role", userDto.getRoleGrpId())// Claim: ?�스??권한 그룹 ID
-                .issuedAt(new Date())                 // ?�큰 발행 ?�간
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 만료 ?�간 ?�정
-                .signWith(key)                        // 지?�된 ?�로 ?��????�명
+                .subject(userDto.getUsrId())          // Subject: 사용자 고유 식별자(ID)
+                .claim("email", userDto.getEmail())   // Claim: 사용자 이메일
+                .claim("name", userDto.getUsrNm())    // Claim: 사용자 성명
+                .claim("role", userDto.getRoleGrpId())// Claim: 시스템 권한 그룹 ID
+                .issuedAt(new Date())                 // 토큰 발행 시간
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 만료 시간 설정
+                .signWith(key)                        // 지정된 키로 디지털 서명
                 .compact();
     }
 
     /**
-     * HTTP ?�청 ?�더?�서 ?�큰 추출
+     * HTTP 요청 헤더에서 토큰 추출
      *
      * @param request HttpServletRequest 객체
-     * @return 추출???�큰 문자??(?�거???�식??맞�? ?�으�?null)
+     * @return 추출된 토큰 문자열 (없거나 형식이 맞지 않으면 null)
      */
-    @Operation(summary = "Header ?�큰 추출", description = "Authorization ?�더?�서 'Bearer ' ?�두?��? ?�외???�수 ?�큰 문자?�을 추출?�니??", hidden = true)
+    @Operation(summary = "Header 토큰 추출", description = "Authorization 헤더에서 'Bearer ' 접두사를 제외한 순수 토큰 문자열을 추출합니다.", hidden = true)
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
@@ -73,31 +73,31 @@ public class JwtTokenProvider {
     }
 
     /**
-     * ?�큰???�효??�?만료 ?��? 검�?
+     * 토큰의 유효성 및 만료 여부 검증
      *
-     * @param token 검증할 JWT ?�큰
-     * @return ?�효???��? (true: ?�효?? false: ?��?�??�는 만료??
+     * @param token 검증할 JWT 토큰
+     * @return 유효성 여부 (true: 유효함, false: 위변조 또는 만료됨)
      */
-    @Operation(summary = "?�큰 ?�효??검�?, description = "?�명 ?�인 �?만료 ?�간??체크?�여 ?�큰???�효?�을 검증합?�다.", hidden = true)
+    @Operation(summary = "토큰 유효성 검증", description = "서명 확인 및 만료 시간을 체크하여 토큰의 유효성을 검증합니다.", hidden = true)
     public boolean validateToken(String token) {
         try {
             SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-            // Jwts parser�??�한 구문 분석 �??�명 검�?
+            // Jwts parser를 통한 구문 분석 및 서명 검증
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
         } catch (Exception e) {
-            // ?�세 ?�러 처리(ExpiredJwtException, MalformedJwtException ?? ?�요 ??추�?
+            // 상세 에러 처리(ExpiredJwtException, MalformedJwtException 등) 필요 시 추가
             return false;
         }
     }
 
     /**
-     * ?�큰?�서 ?�용???�증 ?�보�?추출?�여 Authentication 객체 ?�성
+     * 토큰에서 사용자 인증 정보를 추출하여 Authentication 객체 생성
      *
-     * @param token ?�효??JWT ?�큰
-     * @return Spring Security ?�증 객체
+     * @param token 유효한 JWT 토큰
+     * @return Spring Security 인증 객체
      */
-    @Operation(summary = "?�증 객체 ?�성", description = "?�큰??Payload?�서 ?�용???�보�?추출?�여 Spring Security 컨테?�너???�증 객체�??�성?�니??", hidden = true)
+    @Operation(summary = "인증 객체 생성", description = "토큰의 Payload에서 사용자 정보를 추출하여 Spring Security 컨테이너용 인증 객체를 생성합니다.", hidden = true)
     public Authentication getAuthentication(String token) {
         String userId = Jwts.parser()
                 .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
@@ -106,7 +106,7 @@ public class JwtTokenProvider {
                 .getPayload()
                 .getSubject();
 
-        // 2026 ?�로?�트 ?��?: 권한 목록?� ?�요???�라 부??(?�재??기본 ?�증 처리)
+        // 2026 프로젝트 표준: 권한 목록은 필요에 따라 부여 (현재는 기본 인증 처리)
         return new UsernamePasswordAuthenticationToken(userId, "", Collections.emptyList());
     }
 }

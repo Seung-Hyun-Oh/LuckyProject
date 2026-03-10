@@ -10,28 +10,28 @@ import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import java.util.Locale;
 
 /**
- * ?�국???�정???�한 config
+ * 다국어 설정을 위한 config
  */
 @Configuration
 public class LocaleConfig implements WebMvcConfigurer {
 
     @Bean
     public LocaleResolver localeResolver() {
-        // 브라?��???Accept-Language ?�더�?기�??�로 ?�어 결정
+        // 브라우저의 Accept-Language 헤더를 기준으로 언어 결정
         AcceptHeaderLocaleResolver slr = new AcceptHeaderLocaleResolver();
-        slr.setDefaultLocale(Locale.KOREA); // 기본�??�국??
+        slr.setDefaultLocale(Locale.KOREA); // 기본값 한국어
         return slr;
     }
 
     @Bean
     public ResourceBundleMessageSource messageSource() {
         ResourceBundleMessageSource source = new ResourceBundleMessageSource();
-        source.setBasenames("messages/messages"); // ?�일�?prefix
+        source.setBasenames("messages/messages"); // 파일명 prefix
         source.setDefaultEncoding("UTF-8");
-        source.setUseCodeAsDefaultMessage(true); // 메시지 ?��? ?�을 ???�러 ?�???��? 그�?�?출력
-        // 3. 로�????�보�?찾�? 못했?????�스??기본 로�????�용 ?��?
+        source.setUseCodeAsDefaultMessage(true); // 메시지 키가 없을 때 에러 대신 키를 그대로 출력
+        // 3. 로케일 정보를 찾지 못했을 때 시스템 기본 로케일 사용 여부
         source.setFallbackToSystemLocale(true);
-        source.setCacheSeconds(3600); // 2025???�능 최적?��? ?�한 캐시 ?�정
+        source.setCacheSeconds(3600); // 2025년 성능 최적화를 위한 캐시 설정
         return source;
     }
 }

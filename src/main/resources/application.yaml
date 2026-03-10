@@ -42,7 +42,7 @@ spring:
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   # VO/DTO 객체의 패키지 경로 (XML에서 짧은 이름 사용 가능)
-  type-aliases-package: com.concentrix.lgintegratedadmin.dto
+  type-aliases-package: com.lucky.luckyproject.dto
   # 스네이크 케이스(DB)를 카멜 케이스(Java)로 자동 변환
   configuration:
     map-underscore-to-camel-case: true

@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * ?�스?????�국??메시지(i18n) 처리�??�한 공통 ?�틸리티?�니??
- * Spring??MessageSource�??�용?�여 브라?��? ?�어 ?�정 ?�는 ?�버 ?�정 Locale??맞는 문구�?반환?�니??
+ * 시스템 내 다국어 메시지(i18n) 처리를 위한 공통 유틸리티입니다.
+ * Spring의 MessageSource를 활용하여 브라우저 언어 설정 또는 서버 설정 Locale에 맞는 문구를 반환합니다.
  *
  * @author 2025 Developer
  * @since 2025-12-24
  */
-@Tag(name = "Message Utility", description = "?�국??i18n) 메시지 조회 ?�구")
+@Tag(name = "Message Utility", description = "다국어(i18n) 메시지 조회 도구")
 @Component
 @RequiredArgsConstructor
 public class MessageUtil {
@@ -26,41 +26,41 @@ public class MessageUtil {
     private final MessageSource messageSource;
 
     /**
-     * 메시지 코드???�당?�는 문구�??�재 Locale 기�??�로 반환?�니??
+     * 메시지 코드에 해당하는 문구를 현재 Locale 기준으로 반환합니다.
      *
-     * @param code 메시지 코드 (?? common.save.success)
-     * @return ?�당 ?�어??메시지 (코드 미존????코드 ?�체 반환)
+     * @param code 메시지 코드 (예: common.save.success)
+     * @return 해당 언어의 메시지 (코드 미존재 시 코드 자체 반환)
      */
-    @Operation(summary = "?�국??메시지 조회", description = "코드???�당?�는 메시지�??�재 ?�속?�의 Locale??맞춰 반환?�니??")
+    @Operation(summary = "다국어 메시지 조회", description = "코드에 해당하는 메시지를 현재 접속자의 Locale에 맞춰 반환합니다.")
     public String getMessage(@Parameter(description = "메시지 코드") String code) {
         return getMessage(code, null, "");
     }
 
     /**
-     * ?�라미터가 ?�함??메시지�?반환?�니?? (가변 ?�자 지??
+     * 파라미터가 포함된 메시지를 반환합니다. (가변 인자 지원)
      * <pre>
-     * ?? "login.welcome" = "{0}???�영?�니??"
-     * ?�용: getMessage("login.welcome", "?�길??) -> "?�길?�님 ?�영?�니??"
+     * 예: "login.welcome" = "{0}님 환영합니다."
+     * 사용: getMessage("login.welcome", "홍길동") -> "홍길동님 환영합니다."
      * </pre>
      *
      * @param code 메시지 코드
-     * @param args 메시지???�입???�라미터 (가변 ?�자)
-     * @return ?�맷?�된 메시지
+     * @param args 메시지에 삽입될 파라미터 (가변 인자)
+     * @return 포맷팅된 메시지
      */
-    @Operation(summary = "?�라미터 ?�함 메시지 조회", description = "중괄??{0}, {1} ?�이 ?�함??메시지??값을 채워 반환?�니??")
+    @Operation(summary = "파라미터 포함 메시지 조회", description = "중괄호 {0}, {1} 등이 포함된 메시지에 값을 채워 반환합니다.")
     public String getMessage(String code, Object... args) {
         return getMessage(code, args, "");
     }
 
     /**
-     * 메시지가 ?�을 경우 반환??기본값을 지?�하??메시지�?조회?�니??
+     * 메시지가 없을 경우 반환할 기본값을 지정하여 메시지를 조회합니다.
      *
      * @param code           메시지 코드
-     * @param args           치환 ?�라미터
-     * @param defaultMessage 기본�?
+     * @param args           치환 파라미터
+     * @param defaultMessage 기본값
      * @return 최종 메시지
      */
-    @Operation(summary = "메시지 조회 (기본�?지??", description = "메시지 코드가 ?�을 경우 지?�한 기본 문구�?반환?�니??")
+    @Operation(summary = "메시지 조회 (기본값 지정)", description = "메시지 코드가 없을 경우 지정한 기본 문구를 반환합니다.")
     public String getMessage(String code, Object[] args, String defaultMessage) {
         try {
             return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
@@ -70,13 +70,13 @@ public class MessageUtil {
     }
 
     /**
-     * ?�정 Locale??직접 지?�하??메시지�?조회?�니?? (배치 ?�무 ?�는 ?�정 �?? 강제 ???�용)
+     * 특정 Locale을 직접 지정하여 메시지를 조회합니다. (배치 업무 또는 특정 국가 강제 시 사용)
      *
      * @param code   메시지 코드
-     * @param locale 강제 지?�할 Locale
-     * @return ?�당 ?�어??메시지
+     * @param locale 강제 지정할 Locale
+     * @return 해당 언어의 메시지
      */
-    @Operation(summary = "?�정 Locale 메시지 조회", description = "?�속???�경�?무�??�게 ?�정 �?? ?�어�?메시지�?조회?�니??")
+    @Operation(summary = "특정 Locale 메시지 조회", description = "접속자 환경과 무관하게 특정 국가 언어로 메시지를 조회합니다.")
     public String getMessageForLocale(String code, Locale locale) {
         return messageSource.getMessage(code, null, locale);
     }

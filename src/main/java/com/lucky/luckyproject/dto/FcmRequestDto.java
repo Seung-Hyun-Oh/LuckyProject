@@ -5,14 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-@Schema(description = "FCM ?�림 ?�송 ?�청 객체")
+@Schema(description = "FCM 알림 전송 요청 객체")
 public class FcmRequestDto {
-    @Schema(description = "?�??기기 ?�큰", example = "fcm_token_here")
+    @Schema(description = "대상 기기 토큰", example = "fcm_token_here")
     private String targetToken;
 
-    @Schema(description = "?�림 ?�목", example = "?�녕?�세??")
+    @Schema(description = "알림 제목", example = "안녕하세요!")
     private String title;
 
-    @Schema(description = "?�림 ?�용", example = "Spring Boot?�서 보낸 ?�시?�니??")
+    @Schema(description = "알림 내용", example = "Spring Boot에서 보낸 푸시입니다.")
     private String body;
 }

@@ -9,21 +9,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * ISMS-P �?보안 감사 ?�?�을 ?�한 개인?�보 마스???�틸리티?�니??
- * 2025??최신 개인?�보 처리 가?�드?�인???�라 마스??로직???�공?�니??
+ * ISMS-P 및 보안 감사 대응을 위한 개인정보 마스킹 유틸리티입니다.
+ * 2025년 최신 개인정보 처리 가이드라인에 따라 마스킹 로직을 제공합니다.
  *
  * @author 2025 Developer
  * @since 2025-12-24
  */
-@Tag(name = "Masking Utility", description = "개인?�보(?�름, ?�메?? 번호 ?? 마스??처리 ?�구")
+@Tag(name = "Masking Utility", description = "개인정보(이름, 이메일, 번호 등) 마스킹 처리 도구")
 public class MaskingUtil {
 
     /**
-     * ?�명 마스??(2글?? ?? / 3글?? ????/ 4글???�상: ?�궁**??
+     * 성명 마스킹 (2글자: 홍* / 3글자: 홍*동 / 4글자 이상: 남궁**수)
      */
-    @Operation(summary = "?�명 마스??, description = "?�명 길이???�라 가?�데 글?��? 마스?�합?�다.")
+    @Operation(summary = "성명 마스킹", description = "성명 길이에 따라 가운데 글자를 마스킹합니다.")
     public static String maskName(
-            @Parameter(description = "?�명", example = "?�길??) String name) {
+            @Parameter(description = "성명", example = "홍길동") String name) {
         if (!StringUtils.hasText(name) || name.length() < 2) return name;
 
         if (name.length() == 2) {
@@ -38,11 +38,11 @@ public class MaskingUtil {
     }
 
     /**
-     * ?�메??마스??(ab****@lge.com)
+     * 이메일 마스킹 (ab****@lge.com)
      */
-    @Operation(summary = "?�메??마스??, description = "ID 부분의 ??2글?�만 ?�출?�고 ?�머지�?마스?�합?�다.")
+    @Operation(summary = "이메일 마스킹", description = "ID 부분의 앞 2글자만 노출하고 나머지를 마스킹합니다.")
     public static String maskEmail(
-            @Parameter(description = "?�메??주소", example = "admin@lge.com") String email) {
+            @Parameter(description = "이메일 주소", example = "admin@lge.com") String email) {
         if (!StringUtils.hasText(email) || !email.contains("@")) return email;
 
         String[] parts = email.split("@");
@@ -52,11 +52,11 @@ public class MaskingUtil {
     }
 
     /**
-     * ?��???번호 마스??(010-1234-5678 -> 010-****-5678)
+     * 휴대폰 번호 마스킹 (010-1234-5678 -> 010-****-5678)
      */
-    @Operation(summary = "?��???번호 마스??, description = "가?�데 3~4?�리�?마스?�합?�다.")
+    @Operation(summary = "휴대폰 번호 마스킹", description = "가운데 3~4자리를 마스킹합니다.")
     public static String maskPhoneNumber(
-            @Parameter(description = "?��???번호", example = "010-1234-5678") String phoneNumber) {
+            @Parameter(description = "휴대폰 번호", example = "010-1234-5678") String phoneNumber) {
         if (!StringUtils.hasText(phoneNumber)) return phoneNumber;
 
         String regex = "(\\d{2,3})-?(\\d{3,4})-?(\\d{4})";
@@ -69,9 +69,9 @@ public class MaskingUtil {
     }
 
     /**
-     * 카드번호 마스??(1234-5678-1234-5678 -> 1234-****-****-5678)
+     * 카드번호 마스킹 (1234-5678-1234-5678 -> 1234-****-****-5678)
      */
-    @Operation(summary = "카드번호 마스??, description = "카드번호??중간 8?�리�?마스?�합?�다.")
+    @Operation(summary = "카드번호 마스킹", description = "카드번호의 중간 8자리를 마스킹합니다.")
     public static String maskCardNumber(String cardNumber) {
         if (!StringUtils.hasText(cardNumber)) return cardNumber;
 
@@ -86,9 +86,9 @@ public class MaskingUtil {
     }
 
     /**
-     * 계좌번호 마스??(??5?�리 마스??
+     * 계좌번호 마스킹 (뒤 5자리 마스킹)
      */
-    @Operation(summary = "계좌번호 마스??, description = "계좌번호????5?�리�?마스?�합?�다.")
+    @Operation(summary = "계좌번호 마스킹", description = "계좌번호의 끝 5자리를 마스킹합니다.")
     public static String maskAccountNumber(String accountNumber) {
         if (!StringUtils.hasText(accountNumber) || accountNumber.length() < 5) return accountNumber;
 
@@ -96,10 +96,10 @@ public class MaskingUtil {
     }
 
     /**
-     * 주소 마스??(?�울??강남�??�헤?��?.. -> ?�울??강남�?****)
-     * ?�세 주소(건물번호 ?�후)�?마스??처리?�니??
+     * 주소 마스킹 (서울시 강남구 테헤란로... -> 서울시 강남구 ****)
+     * 상세 주소(건물번호 이후)를 마스킹 처리합니다.
      */
-    @Operation(summary = "주소 마스??, description = "기본 주소 ?�후???�세 주소�?마스?�합?�다.")
+    @Operation(summary = "주소 마스킹", description = "기본 주소 이후의 상세 주소를 마스킹합니다.")
     public static String maskAddress(String address) {
         if (!StringUtils.hasText(address)) return address;
 
@@ -108,16 +108,16 @@ public class MaskingUtil {
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parts.length; i++) {
-            if (i < 2) sb.append(parts[i]).append(" "); // ?? �?�??�출
-            else sb.append("**** "); // ?�머지 마스??
+            if (i < 2) sb.append(parts[i]).append(" "); // 시, 군/구 노출
+            else sb.append("**** "); // 나머지 마스킹
         }
         return sb.toString().trim();
     }
 
     /**
-     * ?�반 ID 마스??(lgadmin -> lga****)
+     * 일반 ID 마스킹 (lgadmin -> lga****)
      */
-    @Operation(summary = "?�용??ID 마스??, description = "ID ??3?�리�??�출?�고 ?�머지�?마스?�합?�다.")
+    @Operation(summary = "사용자 ID 마스킹", description = "ID 앞 3자리만 노출하고 나머지를 마스킹합니다.")
     public static String maskUserId(String userId) {
         if (!StringUtils.hasText(userId) || userId.length() < 3) return userId;
         return userId.substring(0, 3) + "*".repeat(userId.length() - 3);

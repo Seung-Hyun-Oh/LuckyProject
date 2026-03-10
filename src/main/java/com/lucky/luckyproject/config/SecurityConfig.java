@@ -1,22 +1,19 @@
 package com.lucky.luckyproject.config;
 
-import com.lucky.luckyproject.dto.UserDto;
-import com.lucky.luckyproject.security.JwtAuthenticationFilter;
-import com.lucky.luckyproject.security.JwtTokenProvider;
+import com.concentrix.lgintegratedadmin.security.JwtAuthenticationFilter;
+import com.concentrix.lgintegratedadmin.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -25,11 +22,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
- * 2025-2026??최신 ?��?: AD(SAML2) 최초 로그??�?JWT 지???�증 ?�합 ?�정
+ * 2025-2026년 최신 표준: AD(SAML2) 최초 로그인 및 JWT 지속 인증 통합 설정
  */
 @Slf4j
 @Configuration
@@ -43,27 +39,27 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1. 보안 기초 ?�정
-            .csrf(AbstractHttpConfigurer::disable) // REST API 기반?��?�?CSRF 보안??비활?�화 (?�큰 방식???�용?�기 ?�문)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))                              // CORS 커스?� ?�정 ?�용
-            // ?�션???�버???�?�하지 ?�는 STATELESS ?�책 ?�정 (JWT ?�용 ?�수 조건)
+            // 1. 보안 기초 설정
+            .csrf(AbstractHttpConfigurer::disable) // REST API 기반이므로 CSRF 보안을 비활성화 (토큰 방식을 사용하기 때문)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))                              // CORS 커스텀 설정 적용
+            // 세션을 서버에 저장하지 않는 STATELESS 정책 설정 (JWT 사용 필수 조건)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // 2. ?��?(Authorization) 규칙
+            // 2. 인가(Authorization) 규칙
             .authorizeHttpRequests(auth -> auth
-                // [로컬 ?�용] ?�호??API 보호
+                // [로컬 전용] 암호화 API 보호
                 .requestMatchers("/api/crypto/**").access((authentication, context) -> {
                     String remoteAddress = context.getRequest().getRemoteAddr();
-                    // [IP 기반 ?�한] ?�호??API??로컬(127.0.0.1) ?�출�??�용
+                    // [IP 기반 제한] 암호화 API는 로컬(127.0.0.1) 호출만 허용
                     boolean isLocal = new IpAddressMatcher("127.0.0.1").matches(remoteAddress) ||
                             new IpAddressMatcher("::1").matches(remoteAddress);
                     return new AuthorizationDecision(isLocal);
                 })
-                // ?�정 URL ?�턴???�???�근 ?�용 규칙 ?�의
-                .requestMatchers("/user/**").hasRole("USER") // 'USER' ??��??가�??�용?�만 ?�근 ?�용
-                .requestMatchers("/admin/**").hasRole("ADMIN") // 'ADMIN' ??��??가�??�용?�만 ?�근 ?�용
-                .requestMatchers("/shared/**").hasAnyRole("USER", "ADMIN") // 'USER' ?�는 'ADMIN' ??�� ?�근 ?�용
-                // ?�용 경로 / ?�증 ?�이 ?�근 가?�한 공개 경로 ?�정 (API, Swagger, SAML 관??
+                // 특정 URL 패턴에 대한 접근 허용 규칙 정의
+                .requestMatchers("/user/**").hasRole("USER") // 'USER' 역할을 가진 사용자만 접근 허용
+                .requestMatchers("/admin/**").hasRole("ADMIN") // 'ADMIN' 역할을 가진 사용자만 접근 허용
+                .requestMatchers("/shared/**").hasAnyRole("USER", "ADMIN") // 'USER' 또는 'ADMIN' 역할 접근 허용
+                // 허용 경로 / 인증 없이 접근 가능한 공개 경로 설정 (API, Swagger, SAML 관련)
                 .requestMatchers("/api/members/signup", "/api/members/login").permitAll()
                 .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/v3/api-docs/**"
@@ -71,14 +67,14 @@ public class SecurityConfig {
                     , "/swagger-ui.html"
                     , "/login/**"
                     , "/saml2/**").permitAll()
-                // �???API??JWT ?�증 ?�터�??�해 걸러�?
+                // 그 외 API는 JWT 인증 필터를 통해 걸러짐
                 .anyRequest().authenticated()
             )
 
-//            // 3. AD(SAML2) 로그???�로?�스 ?�정
-              /* 3. AD(SAML2) 로그???�로?�스 ?�정 (?�재 주석 처리??
-               - SAML ?�증 ?�공 ??JWT�??�성?�여 ?�라?�언?�에�?발급?�는 로직 ?�함
-               - successHandler: ?�증 ?�공 ??AD ?�보�?추출?�여 JWT ?�큰?�로 변?????�답
+//            // 3. AD(SAML2) 로그인 프로세스 설정
+              /* 3. AD(SAML2) 로그인 프로세스 설정 (현재 주석 처리됨)
+               - SAML 인증 성공 시 JWT를 생성하여 클라이언트에게 발급하는 로직 포함
+               - successHandler: 인증 성공 후 AD 정보를 추출하여 JWT 토큰으로 변환 후 응답
               */
 //            .saml2Login(saml2 -> saml2
 //                .authenticationManager(new ProviderManager(Collections.singletonList(saml2AuthenticationProvider())))
@@ -86,14 +82,14 @@ public class SecurityConfig {
 //                    Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
 //                    String userId = principal.getName();
 //
-//                    // AD Claim URI 매핑 보완 (?�제 ?�체 URI ?�용 권장)
+//                    // AD Claim URI 매핑 보완 (실제 전체 URI 사용 권장)
 //                    String email = principal.getFirstAttribute("schemas.xmlsoap.org");
 //                    if (email == null) email = principal.getFirstAttribute("email");
 //
 //                    String name = principal.getFirstAttribute("schemas.xmlsoap.org");
 //                    if (name == null) name = principal.getFirstAttribute("name");
 //
-//                    // JWT 발급??DTO ?�성
+//                    // JWT 발급용 DTO 생성
 //                    UserDto userDto = UserDto.builder()
 //                        .usrId(userId)
 //                        .email(email != null ? email : "Unknown")
@@ -102,33 +98,33 @@ public class SecurityConfig {
 //                        .build();
 //
 //                    String token = jwtTokenProvider.createToken(userDto);
-//                    log.info("AD ?�증 ?�공 [ID: {}] -> JWT 발급 ?�료", userId);
+//                    log.info("AD 인증 성공 [ID: {}] -> JWT 발급 완료", userId);
 //
-//                    // ?�답 본문???�큰 반환
+//                    // 응답 본문에 토큰 반환
 //                    response.setContentType("application/json;charset=UTF-8");
 //                    response.setHeader("Authorization", "Bearer " + token);
 //                    response.getWriter().write("{\"token\": \"" + token + "\", \"user\": \"" + userId + "\"}");
 //                })
 //            )
 
-            // 4. [중요] JWT ?�터 배치
-            // UsernamePasswordAuthenticationFilter ?�전???�어 ?�큰 기반 ?�증??먼�? ?�행?�게 ??
+            // 4. [중요] JWT 필터 배치
+            // UsernamePasswordAuthenticationFilter 이전에 두어 토큰 기반 인증을 먼저 수행하게 함
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     /**
-     * AD(SAML2) ?�답 검�?�??�이??추출???�한 ?�로바이??
-     * OpenSaml5�??�용?�여 SAML Assertion?�서 ?�용???�보�?추출??
+     * AD(SAML2) 응답 검증 및 데이터 추출을 위한 프로바이더
+     * OpenSaml5를 사용하여 SAML Assertion에서 사용자 정보를 추출함
      */
     @Bean
     public AuthenticationProvider saml2AuthenticationProvider() {
         OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 
-        // SAML ?�답(Response)??받았?????�행??컨버???�정
+        // SAML 응답(Response)을 받았을 때 실행될 컨버터 설정
         provider.setResponseAuthenticationConverter(responseToken -> {
-            // 기본 SAML ?�증 객체 ?�성
+            // 기본 SAML 인증 객체 생성
             Saml2Authentication authentication = OpenSaml5AuthenticationProvider
                 .createDefaultResponseAuthenticationConverter()
                 .convert(responseToken);
@@ -136,12 +132,12 @@ public class SecurityConfig {
             if (authentication == null) return null;
 
             try {
-                // SAML ?�이?�에???�제 ?�용??ID(NameID)�?추출?�는 로직
+                // SAML 데이터에서 실제 사용자 ID(NameID)를 추출하는 로직
                 Assertion assertion = responseToken.getResponse().getAssertions().get(0);
                 String userId = assertion.getSubject().getNameID().getValue();
-                log.debug("SAML Assertion ?�신 (?�용??ID): {}", userId);
+                log.debug("SAML Assertion 수신 (사용자 ID): {}", userId);
             } catch (Exception e) {
-                log.error("SAML ?�이???�싱 �??�류 발생: {}", e.getMessage());
+                log.error("SAML 데이터 파싱 중 오류 발생: {}", e.getMessage());
             }
 
             return authentication;
@@ -151,19 +147,19 @@ public class SecurityConfig {
 
 
     /**
-     * CORS???�???�정??커스?�?�로 구성?�니??
+     * CORS에 대한 설정을 커스텀으로 구성합니다.
      * @return
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));    // ?�용???�리�?
-        configuration.setAllowedMethods(List.of("*"));                          // ?�용??HTTP 메서??
-        configuration.setAllowedHeaders(List.of("*"));                          // 모든 ?�더 ?�용
-        configuration.setAllowCredentials(true);                                    // ?�증 ?�보 ?�용
-        configuration.setMaxAge(3600L);                                             // ?�리?�라?�트 ?�청 결과�?3600�??�안 캐시
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));    // 허용할 오리진
+        configuration.setAllowedMethods(List.of("*"));                          // 허용할 HTTP 메서드
+        configuration.setAllowedHeaders(List.of("*"));                          // 모든 헤더 허용
+        configuration.setAllowCredentials(true);                                    // 인증 정보 허용
+        configuration.setMaxAge(3600L);                                             // 프리플라이트 요청 결과를 3600초 동안 캐시
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);             // 모든 경로???�?????�정 ?�용
+        source.registerCorsConfiguration("/**", configuration);             // 모든 경로에 대해 이 설정 적용
         return source;
     }
 }

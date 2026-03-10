@@ -1,11 +1,9 @@
 package com.lucky.luckyproject.service;
 
-import com.lucky.luckyproject.dto.UserDto;
-import com.lucky.luckyproject.mapper.UserMapper;
+import com.concentrix.lgintegratedadmin.dto.UserDto;
+import com.concentrix.lgintegratedadmin.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Slf4j
 @Service

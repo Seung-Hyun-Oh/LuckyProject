@@ -1,8 +1,8 @@
--- ?�원 ?�이�??�성
+-- ?? ??대? ???
 CREATE TABLE member (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'PK',
-    name VARCHAR(100) NOT NULL COMMENT '?�름',
-    email VARCHAR(255) NOT NULL UNIQUE COMMENT '?�메??로그?�ID)',
-    password VARCHAR(255) NOT NULL COMMENT '?�호?�된 비�?번호',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '?�성?�시'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='?�원 ?�이�?;
+    name VARCHAR(100) NOT NULL COMMENT '?대?',
+    email VARCHAR(255) NOT NULL UNIQUE COMMENT '?대???濡洹몄?D)',
+    password VARCHAR(255) NOT NULL COMMENT '??명? 鍮諛踰??,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '??깆쇱'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='?? ??대?';

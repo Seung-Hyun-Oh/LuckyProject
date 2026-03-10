@@ -13,22 +13,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 /**
- * 커머??관??비즈?�스 로직??처리?�는 공통 ?�틸리티 컴포?�트?�니??
- * 주문 번호 ?�성, 금액 계산, ?�금 계산 ?�의 기능???�공?�니??
+ * 커머스 관련 비즈니스 로직을 처리하는 공통 유틸리티 컴포넌트입니다.
+ * 주문 번호 생성, 금액 계산, 세금 계산 등의 기능을 제공합니다.
  *
  * @author 2025 Developer
  * @since 2025-12-24
  */
-@Tag(name = "Commerce Utility", description = "주문 �?결제 관??계산 ?�틸리티")
+@Tag(name = "Commerce Utility", description = "주문 및 결제 관련 계산 유틸리티")
 @Component
 public class CommerceUtil {
 
     /**
-     * ?�재 ?�짜?� UUID�?조합?�여 고유??주문 번호�??�성?�니??
+     * 현재 날짜와 UUID를 조합하여 고유한 주문 번호를 생성합니다.
      *
-     * @return ?�성??주문 번호 (?? 20251224-A1B2C3D4)
+     * @return 생성된 주문 번호 (예: 20251224-A1B2C3D4)
      */
-    @Operation(summary = "주문 번호 ?�성", description = "?�늘 ?�짜?� ?�덤 문자?�을 조합?�여 ?�니?�한 주문 번호�?반환?�니??")
+    @Operation(summary = "주문 번호 생성", description = "오늘 날짜와 랜덤 문자열을 조합하여 유니크한 주문 번호를 반환합니다.")
     public String generateOrderNo() {
         String datePrefix = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String randomSuffix = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -36,37 +36,37 @@ public class CommerceUtil {
     }
 
     /**
-     * ?��??� ?�인?�을 기반?�로 ?�인 금액??계산?�니??
+     * 정가와 할인율을 기반으로 할인 금액을 계산합니다.
      *
-     * @param originalPrice ?��? (BigDecimal)
-     * @param discountRate  ?�인??(0~100 ?�이??double)
-     * @return 계산???�인 금액 (?�수??첫째 ?�리?�서 반올�?
+     * @param originalPrice 정가 (BigDecimal)
+     * @param discountRate  할인율 (0~100 사이의 double)
+     * @return 계산된 할인 금액 (소수점 첫째 자리에서 반올림)
      */
-    @Operation(summary = "?�인 금액 계산", description = "?��??� ?�인?�을 ?�력받아 ?�제 ?�인??금액??계산?�니??")
+    @Operation(summary = "할인 금액 계산", description = "정가와 할인율을 입력받아 실제 할인될 금액을 계산합니다.")
     public BigDecimal calculateDiscountAmount(
-            @Parameter(description = "?�품 ?��?", example = "50000") BigDecimal originalPrice,
-            @Parameter(description = "?�인??(%)", example = "15.5") double discountRate) {
+            @Parameter(description = "상품 정가", example = "50000") BigDecimal originalPrice,
+            @Parameter(description = "할인율 (%)", example = "15.5") double discountRate) {
 
         if (originalPrice == null || discountRate <= 0) return BigDecimal.ZERO;
 
-        // ?��? * (?�인??/ 100)
+        // 정가 * (할인율 / 100)
         return originalPrice.multiply(BigDecimal.valueOf(discountRate))
                 .divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP);
     }
 
     /**
-     * ?��??�서 ?�인???�용?�고 배송비�? ?�산?�여 최종 결제 금액???�출?�니??
+     * 정가에서 할인을 적용하고 배송비를 합산하여 최종 결제 금액을 산출합니다.
      *
-     * @param originalPrice  ?��?
-     * @param discountAmount ?�인 금액 (직전 계산 결과�?권장)
-     * @param deliveryFee    배송�?
-     * @return 최종 ?�결??금액
+     * @param originalPrice  정가
+     * @param discountAmount 할인 금액 (직전 계산 결과값 권장)
+     * @param deliveryFee    배송비
+     * @return 최종 실결제 금액
      */
-    @Operation(summary = "최종 결제 금액 계산", description = "?��??�서 ?�인가�?빼고 배송비�? ?�한 최종 금액??구합?�다.")
+    @Operation(summary = "최종 결제 금액 계산", description = "정가에서 할인가를 빼고 배송비를 더한 최종 금액을 구합니다.")
     public BigDecimal calculateFinalPrice(
-            @Schema(description = "?�품 ?��?") BigDecimal originalPrice,
-            @Schema(description = "차감???�인??) BigDecimal discountAmount,
-            @Schema(description = "추�???배송�?) BigDecimal deliveryFee) {
+            @Schema(description = "상품 정가") BigDecimal originalPrice,
+            @Schema(description = "차감할 할인액") BigDecimal discountAmount,
+            @Schema(description = "추가될 배송비") BigDecimal deliveryFee) {
 
         BigDecimal base = originalPrice != null ? originalPrice : BigDecimal.ZERO;
         BigDecimal discount = discountAmount != null ? discountAmount : BigDecimal.ZERO;
@@ -76,18 +76,18 @@ public class CommerceUtil {
     }
 
     /**
-     * �?결제 금액(공급가??+ 부가???�서 부가??10%)�???��?�니??
+     * 총 결제 금액(공급가액 + 부가세)에서 부가세(10%)를 역산합니다.
      *
-     * @param totalAmount 부가?��? ?�함??�?금액
-     * @return 계산??부가??(1/11 비율 계산)
+     * @param totalAmount 부가세가 포함된 총 금액
+     * @return 계산된 부가세 (1/11 비율 계산)
      */
-    @Operation(summary = "부가??VAT) 계산", description = "?�함??�?금액?�서 부가??10%�???��?�여 ?�출?�니??")
+    @Operation(summary = "부가세(VAT) 계산", description = "포함된 총 금액에서 부가세 10%를 역산하여 산출합니다.")
     public BigDecimal calculateTax(
-            @Parameter(description = "�?결제 금액", required = true) BigDecimal totalAmount) {
+            @Parameter(description = "총 결제 금액", required = true) BigDecimal totalAmount) {
 
         if (totalAmount == null) return BigDecimal.ZERO;
 
-        // 총액 / 11 (?�수??첫째 ?�리?�서 반올�?
+        // 총액 / 11 (소수점 첫째 자리에서 반올림)
         return totalAmount.divide(BigDecimal.valueOf(11), 0, RoundingMode.HALF_UP);
     }
 }

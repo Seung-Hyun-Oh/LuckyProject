@@ -5,45 +5,45 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- * [2025 ?��?] BCrypt ?�고리즘???�용??비�?번호 ?�호??�?검�??�틸리티
- * BCrypt???�행 마다 ?�트(Salt)�??�동?�로 ?�성?�여 보안?�이 매우 ?�습?�다.
+ * [2025 표준] BCrypt 알고리즘을 이용한 비밀번호 암호화 및 검증 유틸리티
+ * BCrypt는 실행 마다 솔트(Salt)를 자동으로 생성하여 보안성이 매우 높습니다.
  */
 @Component
-@RequiredArgsConstructor // final ?�드???�???�성??주입 ?�행
+@RequiredArgsConstructor // final 필드에 대해 생성자 주입 수행
 public class PasswordGenerator {
 
-    // 1. final�??�언?�여 ?�프링이 주입?�게 ?�니??
+    // 1. final로 선언하여 스프링이 주입하게 합니다.
     private final BCryptPasswordEncoder passwordEncoder;
 
     /**
-     * ?�문 비�?번호�?DB ?�?�용 ?�시값으�??�호??
+     * 평문 비밀번호를 DB 저장용 해시값으로 암호화
      */
     public String encodePassword(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
     }
 
     /**
-     * ?�력받�? ?�문�?DB???�호?�된 값이 ?�치?�는지 ?�인
+     * 입력받은 평문과 DB의 암호화된 값이 일치하는지 확인
      */
     public boolean matches(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     /**
-     * ?�스?��? ?�한 main 메서??
-     * main 메서?�는 ?�프�?컨텍?�트 밖이므�?직접 객체�??�성?�서 ?�스?�해???�니??
+     * 테스트를 위한 main 메서드
+     * main 메서드는 스프링 컨텍스트 밖이므로 직접 객체를 생성해서 테스트해야 합니다.
      */
     public static void main(String[] args) {
-        // main?�서 ?�행???�는 ?�프링의 주입??받을 ???�으므�?직접 ?�코?��? ?�성?�여 ?�달?�니??
+        // main에서 실행할 때는 스프링의 주입을 받을 수 없으므로 직접 인코더를 생성하여 전달합니다.
         BCryptPasswordEncoder testEncoder = new BCryptPasswordEncoder();
         PasswordGenerator generator = new PasswordGenerator(testEncoder);
 
         String rawPassword = "myPassword123!";
         String encodedPassword = generator.encodePassword(rawPassword);
 
-        System.out.println("DB ?�?�용 ?�호??비�?번호: " + encodedPassword);
+        System.out.println("DB 저장용 암호화 비밀번호: " + encodedPassword);
 
         boolean isMatch = generator.matches(rawPassword, encodedPassword);
-        System.out.println("?�치 ?��?: " + isMatch);
+        System.out.println("일치 여부: " + isMatch);
     }
 }

@@ -1,6 +1,6 @@
 package com.lucky.luckyproject.mapper;
 
-import com.lucky.luckyproject.domain.Member;
+import com.concentrix.lgintegratedadmin.domain.Member;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

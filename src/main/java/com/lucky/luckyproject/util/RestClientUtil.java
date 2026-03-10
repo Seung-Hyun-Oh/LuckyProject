@@ -1,6 +1,6 @@
 package com.lucky.luckyproject.util;
 
-import com.lucky.luckyproject.exception.BusinessException;
+import com.concentrix.lgintegratedadmin.exception.BusinessException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,14 +14,14 @@ import org.springframework.web.client.RestClient;
 import java.util.Map;
 
 /**
- * Spring 6.1+??RestClient�??�용???��? ?�스???�동 ?�틸리티?�니??
- * 2025??기�? RestTemplate???�?�으�?권장?�는 최신 ?�기??HTTP ?�라?�언???�이브러리입?�다.
+ * Spring 6.1+의 RestClient를 활용한 외부 시스템 연동 유틸리티입니다.
+ * 2025년 기준 RestTemplate의 대안으로 권장되는 최신 동기식 HTTP 클라이언트 라이브러리입니다.
  *
  * @author 2025 Developer
  * @since 2025-12-24
  */
 @Slf4j
-@Tag(name = "Rest Client Utility", description = "?��? ?�스??API ?�동 ?�구 (Spring RestClient 기반)")
+@Tag(name = "Rest Client Utility", description = "외부 시스템 API 연동 도구 (Spring RestClient 기반)")
 @Component
 @RequiredArgsConstructor
 public class RestClientUtil {
@@ -29,17 +29,17 @@ public class RestClientUtil {
     private final RestClient restClient;
 
     /**
-     * GET ?�청 - Query ?�라미터 �??�더�??�함?�여 ?�이?��? 조회?�니??
+     * GET 요청 - Query 파라미터 및 헤더를 포함하여 데이터를 조회합니다.
      *
-     * @param url          API ?�드?�인??URL
-     * @param queryParams  URL 쿼리 ?�라미터 Map
-     * @param responseType 반환 객체 ?�래???�??
-     * @return ??��?�화???�답 객체
+     * @param url          API 엔드포인트 URL
+     * @param queryParams  URL 쿼리 파라미터 Map
+     * @param responseType 반환 객체 클래스 타입
+     * @return 역직렬화된 응답 객체
      */
-    @Operation(summary = "GET API ?�출", description = "?��? ?�스?�의 ?�원??조회?�니??")
+    @Operation(summary = "GET API 호출", description = "외부 시스템의 자원을 조회합니다.")
     public <T> T get(
-            @Parameter(description = "?�출 URL") String url,
-            @Parameter(description = "쿼리 ?�라미터") Map<String, String> queryParams,
+            @Parameter(description = "호출 URL") String url,
+            @Parameter(description = "쿼리 파라미터") Map<String, String> queryParams,
             Class<T> responseType) {
 
         log.info("[API GET REQUEST] URL: {}, Params: {}", url, queryParams);
@@ -59,13 +59,13 @@ public class RestClientUtil {
     }
 
     /**
-     * POST ?�청 - JSON 본문???�송?�여 ?�로???�원???�성?�니??
+     * POST 요청 - JSON 본문을 전송하여 새로운 자원을 생성합니다.
      *
-     * @param url          API ?�드?�인??URL
-     * @param body         ?�송??Request Body 객체
-     * @param responseType 반환 객체 ?�래???�??
+     * @param url          API 엔드포인트 URL
+     * @param body         전송할 Request Body 객체
+     * @param responseType 반환 객체 클래스 타입
      */
-    @Operation(summary = "POST API ?�출", description = "JSON 본문???�함?�여 ?��? API???�원 ?�성???�청?�니??")
+    @Operation(summary = "POST API 호출", description = "JSON 본문을 포함하여 외부 API에 자원 생성을 요청합니다.")
     public <T> T post(String url, Object body, Class<T> responseType) {
         log.info("[API POST REQUEST] URL: {}", url);
 
@@ -79,9 +79,9 @@ public class RestClientUtil {
     }
 
     /**
-     * PUT ?�청 - JSON 본문???�송?�여 기존 ?�원???�정?�니??
+     * PUT 요청 - JSON 본문을 전송하여 기존 자원을 수정합니다.
      */
-    @Operation(summary = "PUT API ?�출", description = "?��? API??기존 ?�원???�정?�니??")
+    @Operation(summary = "PUT API 호출", description = "외부 API의 기존 자원을 수정합니다.")
     public <T> T put(String url, Object body, Class<T> responseType) {
         log.info("[API PUT REQUEST] URL: {}", url);
 
@@ -95,9 +95,9 @@ public class RestClientUtil {
     }
 
     /**
-     * DELETE ?�청 - ?�정 ?�원????���??�청?�니??
+     * DELETE 요청 - 특정 자원의 삭제를 요청합니다.
      */
-    @Operation(summary = "DELETE API ?�출", description = "?��? API???�정 ?�원 ??���??�청?�니??")
+    @Operation(summary = "DELETE API 호출", description = "외부 API의 특정 자원 삭제를 요청합니다.")
     public void delete(String url) {
         log.info("[API DELETE REQUEST] URL: {}", url);
 
@@ -109,10 +109,10 @@ public class RestClientUtil {
     }
 
     /**
-     * 커스?� ?�더�??�함??POST ?�청
-     * ?��? ?�스???�증(API Key, Bearer Token ?????�요??경우 ?�용?�니??
+     * 커스텀 헤더를 포함한 POST 요청
+     * 외부 시스템 인증(API Key, Bearer Token 등)이 필요한 경우 사용합니다.
      */
-    @Operation(summary = "Header ?�함 POST ?�출", description = "?�증 ?�큰 ??커스?� ?�더�??�함?�여 ?�출?�니??")
+    @Operation(summary = "Header 포함 POST 호출", description = "인증 토큰 등 커스텀 헤더를 포함하여 호출합니다.")
     public <T> T postWithHeaders(String url, Map<String, String> headers, Object body, Class<T> responseType) {
         return restClient.post()
             .uri(url)
@@ -125,12 +125,12 @@ public class RestClientUtil {
     }
 
     /**
-     * 공통 ?�러 ?�들??
-     * HTTP 4xx, 5xx ?�러 발생 ??로그�?기록?�고 ?�로?�트 ?�역 ?�외�?변?�합?�다.
+     * 공통 에러 핸들러
+     * HTTP 4xx, 5xx 에러 발생 시 로그를 기록하고 프로젝트 전역 예외로 변환합니다.
      */
     private void handleApiError(String url, HttpStatusCode status) {
         log.error("[API ERROR] URL: {}, Status Code: {}", url, status);
-        // ?�무?�서??비즈?�스 ?�러 코드�??�의??CustomException ?�용 권장
-        throw new BusinessException("?��? ?�스???�동 ?�류 (" + status.value() + ") - " + url);
+        // 실무에서는 비즈니스 에러 코드를 정의한 CustomException 사용 권장
+        throw new BusinessException("외부 시스템 연동 오류 (" + status.value() + ") - " + url);
     }
 }

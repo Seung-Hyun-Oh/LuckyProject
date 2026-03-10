@@ -6,15 +6,15 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "?�메??발송 ?�청 ?�보") // ?�래???�명
+@Schema(description = "이메일 발송 요청 정보") // 클래스 설명
 public class EmailRequestDto {
 
-    @Schema(description = "?�신???�메??주소", example = "user@example.com")
+    @Schema(description = "수신자 이메일 주소", example = "user@example.com")
     private String to;
 
-    @Schema(description = "메일 ?�목", example = "?�녕?�세?? ?�증 코드?�니??")
+    @Schema(description = "메일 제목", example = "안녕하세요. 인증 코드입니다.")
     private String subject;
 
-    @Schema(description = "메일 ?�용", example = "?�증 번호??[123456] ?�니??")
+    @Schema(description = "메일 내용", example = "인증 번호는 [123456] 입니다.")
     private String text;
 }

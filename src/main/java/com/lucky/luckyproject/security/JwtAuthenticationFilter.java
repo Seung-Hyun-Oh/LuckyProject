@@ -10,11 +10,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 
 /**
- * JWT ?�증 ?�터
- * OncePerRequestFilter�??�속받아 모든 ?�청??????번만 ?�행?�을 보장?�니??
+ * JWT 인증 필터
+ * OncePerRequestFilter를 상속받아 모든 요청당 단 한 번만 실행됨을 보장합니다.
  */
 @Slf4j
 @Component
@@ -28,44 +29,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         try {
-            // 1. ?�청 ?�더(Authorization)?�서 "Bearer {token}" 추출
+            // 1. 요청 헤더(Authorization)에서 "Bearer {token}" 추출
             String token = jwtTokenProvider.resolveToken(request);
 
-            // 2. ?�큰??존재?�고 ?�효??검??만료?? ?�명 ??�??�과?�면 ?�증 처리
+            // 2. 토큰이 존재하고 유효성 검사(만료일, 서명 등)를 통과하면 인증 처리
             if (token != null && jwtTokenProvider.validateToken(token)) {
-                // ?�큰 ?��? ?�보�?기반?�로 Authentication(?�증) 객체 ?�성
+                // 토큰 내부 정보를 기반으로 Authentication(인증) 객체 생성
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
 
-                // ?�재 ?�청 ?�레?�의 SecurityContext???�증 ?�보 ?�??(?�후 Controller ?�에???�용 가??
+                // 현재 요청 스레드의 SecurityContext에 인증 정보 저장 (이후 Controller 등에서 사용 가능)
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                log.debug("JWT ?�큰 ?�증 ?�공: {}", authentication.getName());
+                log.debug("JWT 토큰 인증 성공: {}", authentication.getName());
             }
         } catch (Exception e) {
-            // ?�큰???�못?�었거나 ?�싱 �??�외가 발생?�도, ?�적 리소??공개 ?�드?�인?�까지 500?�로 ?�뜨리�? ?�도�?방어?�니??
-            // 보호 API?�서??최종 401/403 처리??Spring Security???��? ?�정?�서 맡기??것이 ?�기?�으�??��?보수???�리?�니??
+            // 토큰이 잘못되었거나 파싱 중 예외가 발생해도, 정적 리소스/공개 엔드포인트까지 500으로 터뜨리지 않도록 방어합니다.
+            // 보호 API에서의 최종 401/403 처리는 Spring Security의 인가 설정에서 맡기는 것이 장기적으로 유지보수에 유리합니다.
             SecurityContextHolder.clearContext();
-            log.debug("JWT 처리 �??�외 발생 (?�청?� ?�명?�로 계속 진행): method={}, uri={}, msg={}",
+            log.debug("JWT 처리 중 예외 발생 (요청은 익명으로 계속 진행): method={}, uri={}, msg={}",
                     request.getMethod(), request.getRequestURI(), e.getMessage());
         }
-        // 3. ?�음 ?�터�??�청 ?�달
+        // 3. 다음 필터로 요청 전달
         filterChain.doFilter(request, response);
     }
 
     /**
-     * ?�터링을 거치지 ?�을 경로 ?�정
-     * 2026???��?: 로그?�이 ?�요???�비???�의 공개 API???�터 ?�행 ?�체�?방�??�여 ?�능 ?�상
+     * 필터링을 거치지 않을 경로 설정
+     * 2026년 표준: 로그인이 필요한 서비스 외의 공개 API는 필터 실행 자체를 방지하여 성능 향상
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String method = request.getMethod();
         if ("OPTIONS".equalsIgnoreCase(method)) {
-            // CORS preflight???�증 ?�이 ?�과?�야 ?�상 ?�작?�니??
+            // CORS preflight는 인증 없이 통과해야 정상 동작합니다.
             return true;
         }
 
         String path = request.getServletPath();
-        // 로그?? ?�원가?? Swagger UI ?��? JWT 검�??�외
+        // 로그인, 회원가입, Swagger UI 등은 JWT 검증 제외
         boolean bool = path.startsWith("/login") || path.startsWith("/signup") || path.startsWith("/swagger-ui");
 
         bool = bool || path.startsWith("/v3/api-docs");

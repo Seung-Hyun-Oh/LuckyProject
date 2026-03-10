@@ -8,7 +8,7 @@ public class EncryptionService {
 
     private final StringEncryptor jasyptStringEncryptor;
 
-    // ?�성??주입 (JasyptConfig?�서 ?�정??�??�름)
+    // 생성자 주입 (JasyptConfig에서 설정한 빈 이름)
     public EncryptionService(StringEncryptor jasyptStringEncryptor) {
         this.jasyptStringEncryptor = jasyptStringEncryptor;
     }
@@ -18,7 +18,7 @@ public class EncryptionService {
     }
 
     public String decrypt(String encryptedText) {
-        // ENC()�?감싸???�다�??�거 ??복호?�하거나, Jasypt ?�정???�라 ?�름
+        // ENC()로 감싸져 있다면 제거 후 복호화하거나, Jasypt 설정에 따라 다름
         return jasyptStringEncryptor.decrypt(encryptedText);
     }
 }

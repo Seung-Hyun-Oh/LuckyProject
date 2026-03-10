@@ -2,8 +2,8 @@ package com.lucky.luckyproject.util;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -11,22 +11,22 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- * ?��???금액 ?�산 �?�??�??�화 ?�맷?�을 처리?�는 ?�틸리티?�니??
- * 부???�수???�차 방�?�??�해 모든 ?�산?� BigDecimal???�용?�니??
+ * 정밀한 금액 연산 및 국가별 통화 포맷팅을 처리하는 유틸리티입니다.
+ * 부동 소수점 오차 방지를 위해 모든 연산은 BigDecimal을 사용합니다.
  *
  * @author 2025 Developer
  * @since 2025-12-24
  */
-@Tag(name = "Money Utility", description = "금액 ?�술 ?�산 �??�화 ?�맷???�구")
+@Tag(name = "Money Utility", description = "금액 산술 연산 및 통화 포맷팅 도구")
 public class MoneyUtil {
 
     private static final RoundingMode DEFAULT_ROUNDING = RoundingMode.HALF_UP;
     private static final int DEFAULT_SCALE = 2;
 
     /**
-     * 금액 ?�셈 (Null ?�전)
+     * 금액 덧셈 (Null 안전)
      */
-    @Operation(summary = "금액 ?�산", description = "??금액???�합?�다. Null?� 0?�로 처리?�니??")
+    @Operation(summary = "금액 합산", description = "두 금액을 더합니다. Null은 0으로 처리합니다.")
     public static BigDecimal add(BigDecimal a, BigDecimal b) {
         BigDecimal val1 = a == null ? BigDecimal.ZERO : a;
         BigDecimal val2 = b == null ? BigDecimal.ZERO : b;
@@ -36,7 +36,7 @@ public class MoneyUtil {
     /**
      * 금액 뺄셈 (a - b)
      */
-    @Operation(summary = "금액 차감", description = "�?번째 금액?�서 ??번째 금액??뺍니??")
+    @Operation(summary = "금액 차감", description = "첫 번째 금액에서 두 번째 금액을 뺍니다.")
     public static BigDecimal subtract(BigDecimal a, BigDecimal b) {
         BigDecimal val1 = a == null ? BigDecimal.ZERO : a;
         BigDecimal val2 = b == null ? BigDecimal.ZERO : b;
@@ -46,24 +46,24 @@ public class MoneyUtil {
     /**
      * 금액 곱셈
      */
-    @Operation(summary = "금액 곱셈", description = "금액???�량 ?�는 배율??곱합?�다.")
+    @Operation(summary = "금액 곱셈", description = "금액에 수량 또는 배율을 곱합니다.")
     public static BigDecimal multiply(BigDecimal a, BigDecimal b) {
         if (a == null || b == null) return BigDecimal.ZERO;
         return a.multiply(b);
     }
 
     /**
-     * 금액 ?�눗??(기본 ?�수??2?�리 반올�?
+     * 금액 나눗셈 (기본 소수점 2자리 반올림)
      */
-    @Operation(summary = "금액 ?�눗??, description = "금액???�누�? 기본?�으�??�수??2?�리?�서 반올림합?�다.")
+    @Operation(summary = "금액 나눗셈", description = "금액을 나누며, 기본적으로 소수점 2자리에서 반올림합니다.")
     public static BigDecimal divide(BigDecimal a, BigDecimal b) {
         return divide(a, b, DEFAULT_SCALE, DEFAULT_ROUNDING);
     }
 
     /**
-     * ?�세 ?�정???�함???�눗??
+     * 상세 설정을 포함한 나눗셈
      */
-    @Operation(summary = "?��? ?�눗??, description = "?�리?��? 반올�??�책??지?�하???�눗?�을 ?�행?�니??")
+    @Operation(summary = "정밀 나눗셈", description = "자리수와 반올림 정책을 지정하여 나눗셈을 수행합니다.")
     public static BigDecimal divide(BigDecimal a, BigDecimal b, int scale, RoundingMode mode) {
         if (a == null || b == null || b.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
         return a.divide(b, scale, mode);
@@ -72,7 +72,7 @@ public class MoneyUtil {
     /**
      * 금액 비교 (a > b)
      */
-    @Operation(summary = "금액 ??비교", description = "�?번째 금액????번째 금액보다 ?��? ?�인?�니??")
+    @Operation(summary = "금액 큼 비교", description = "첫 번째 금액이 두 번째 금액보다 큰지 확인합니다.")
     public static boolean isGreaterThan(BigDecimal a, BigDecimal b) {
         if (a == null || b == null) return false;
         return a.compareTo(b) > 0;
@@ -81,17 +81,17 @@ public class MoneyUtil {
     /**
      * 금액 비교 (a == b)
      */
-    @Operation(summary = "금액 ?�일 ?��?", description = "??금액??값이 ?�일?��? ?�인?�니?? (Scale 무�?)")
+    @Operation(summary = "금액 동일 여부", description = "두 금액의 값이 동일한지 확인합니다. (Scale 무관)")
     public static boolean isEqual(BigDecimal a, BigDecimal b) {
         if (a == null || b == null) return a == b;
         return a.compareTo(b) == 0;
     }
 
     /**
-     * �??�위 콤마 ?�맷??(?�수???�함)
-     * ?? 1234567.89 -> 1,234,567.89
+     * 천 단위 콤마 포맷팅 (소수점 포함)
+     * 예: 1234567.89 -> 1,234,567.89
      */
-    @Operation(summary = "�??�위 콤마 변??, description = "금액??콤마�?추�???문자?�로 반환?�니??")
+    @Operation(summary = "천 단위 콤마 변환", description = "금액에 콤마를 추가한 문자열로 반환합니다.")
     public static String formatWithComma(
             @Parameter(description = "금액", example = "1234567.89") BigDecimal amount) {
         if (amount == null) return "0";
@@ -100,10 +100,10 @@ public class MoneyUtil {
     }
 
     /**
-     * ?�화 기호 ?�함 ?�맷??(Locale 기�?)
-     * ?? KRW -> ??,234 / USD -> $1,234.56
+     * 통화 기호 포함 포맷팅 (Locale 기준)
+     * 예: KRW -> ₩1,234 / USD -> $1,234.56
      */
-    @Operation(summary = "�??�??�화 ?�맷??, description = "로�????�정??바탕?�로 ?�화 기호?� ?�께 ?�맷?�합?�다.")
+    @Operation(summary = "국가별 통화 포맷팅", description = "로케일 설정을 바탕으로 통화 기호와 함께 포맷팅합니다.")
     public static String formatCurrency(BigDecimal amount, Locale locale) {
         if (amount == null) return "0";
         NumberFormat nf = NumberFormat.getCurrencyInstance(locale != null ? locale : Locale.KOREA);
@@ -111,13 +111,13 @@ public class MoneyUtil {
     }
 
     /**
-     * ?�화(KRW) ?�용 ?�삭 처리 (1???�위 ?�삭 ??
-     * ?? 1234.56 -> 1230 (10???�위 반올�?
+     * 원화(KRW) 전용 절삭 처리 (1원 단위 절삭 등)
+     * 예: 1234.56 -> 1230 (10원 단위 반올림)
      */
-    @Operation(summary = "?�화 ?�삭 처리", description = "?�국 ?�화 기�? ?�정 ?�위?�서 ?�삭/반올�?처리?�니??")
+    @Operation(summary = "원화 절삭 처리", description = "한국 원화 기준 특정 단위에서 절삭/반올림 처리합니다.")
     public static BigDecimal roundKrw(BigDecimal amount, int unit) {
         if (amount == null) return BigDecimal.ZERO;
-        // unit??10??경우 10???�위 반올�?
+        // unit이 10인 경우 10원 단위 반올림
         return amount.divide(BigDecimal.valueOf(unit), 0, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(unit));
     }
 }

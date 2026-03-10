@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- 공통 로그 ?�턴 ?�의 -->
+    <!-- 怨듯?濡洹??⑦??? -->
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
 
-    <!-- 1. Local: 콘솔??DEBUG ?�벨까�? ?�세 출력 -->
+    <!-- 1. Local: 肄?? DEBUG ?踰④?吏 ???異??-->
     <springProfile name="local">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
@@ -15,7 +15,7 @@
         </root>
     </springProfile>
 
-    <!-- 2. Dev: ?�일??INFO ?�벨부??기록 -->
+    <!-- 2. Dev: ??쇱 INFO ?踰⑤???湲곕? -->
     <springProfile name="dev">
         <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/dev-app.log</file>
@@ -33,7 +33,7 @@
         </root>
     </springProfile>
 
-    <!-- 3. Prod: ?�일??ERROR ?�벨�??�격?�게 기록 -->
+    <!-- 3. Prod: ??쇱 ERROR ?踰⑤? ?寃⑺寃 湲곕? -->
     <springProfile name="prod">
         <appender name="PROD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/prod-error.log</file>
@@ -45,7 +45,7 @@
                 <pattern>${LOG_PATTERN}</pattern>
             </encoder>
         </appender>
-        <!-- ?�영 ?�경?� ?�스???�체??WARN, ?�리 ?�비??코드??ERROR�?기록 ???��? 조절 가??-->
+        <!-- ?댁 ?寃쎌 ??ㅽ ?泥대 WARN, ?곕━ ?鍮??肄?? ERROR留 湲곕? ???몃? 議곗 媛??-->
         <root level="WARN">
             <appender-ref ref="PROD_FILE" />
         </root>

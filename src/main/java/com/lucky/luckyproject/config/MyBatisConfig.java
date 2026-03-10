@@ -11,8 +11,8 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 
 @Configuration
-// UserMapper가 ?�치???�키지�??�캔?�도�?경로�??�정?�니??
-@MapperScan("com.lucky.luckyproject.mapper")
+// UserMapper가 위치한 패키지를 스캔하도록 경로를 설정합니다.
+@MapperScan("com.concentrix.lgintegratedadmin.mapper")
 public class MyBatisConfig {
 
     @Bean
@@ -21,11 +21,11 @@ public class MyBatisConfig {
         sessionFactory.setDataSource(dataSource);
 
         org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
-        configuration.setMapUnderscoreToCamelCase(true); // snake_case�?camelCase�?변?�함
+        configuration.setMapUnderscoreToCamelCase(true); // snake_case를 camelCase로 변환함
         sessionFactory.setConfiguration(configuration);
 
-        // DTO ?�키지 경로 ?�정 (XML?�서 ?�래?�명�??????�게 ?�줌)
-        sessionFactory.setTypeAliasesPackage("com.lucky.luckyproject.dto");
+        // DTO 패키지 경로 설정 (XML에서 클래스명만 쓸 수 있게 해줌)
+        sessionFactory.setTypeAliasesPackage("com.concentrix.lgintegratedadmin.dto");
 
         Resource[] res = new PathMatchingResourcePatternResolver().getResources("classpath:mapper/**/*.xml");
         sessionFactory.setMapperLocations(res);

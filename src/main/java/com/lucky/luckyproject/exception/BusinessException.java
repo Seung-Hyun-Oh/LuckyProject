@@ -3,17 +3,17 @@ package com.lucky.luckyproject.exception;
 import lombok.Getter;
 
 /**
- * ?�비??비즈?�스 로직 ?�행 �?발생?�는 ?�용???�의 ?�외 ?�래??
+ * 서비스 비즈니스 로직 수행 중 발생하는 사용자 정의 예외 클래스
  */
 @Getter
 public class BusinessException extends RuntimeException {
 
-    /** ?�러 ?�별 코드 */
+    /** 에러 식별 코드 */
     private final String errorCode;
 
     /**
-     * 메시지�??�달?�는 ?�성??
-     * @param message ?�러 메시지
+     * 메시지만 전달하는 생성자
+     * @param message 에러 메시지
      */
     public BusinessException(String message) {
         super(message);
@@ -21,9 +21,9 @@ public class BusinessException extends RuntimeException {
     }
 
     /**
-     * ?�러 코드?� 메시지�??�께 ?�달?�는 ?�성??
-     * @param errorCode ?�정 ?�러 코드
-     * @param message ?�러 메시지
+     * 에러 코드와 메시지를 함께 전달하는 생성자
+     * @param errorCode 특정 에러 코드
+     * @param message 에러 메시지
      */
     public BusinessException(String errorCode, String message) {
         super(message);
