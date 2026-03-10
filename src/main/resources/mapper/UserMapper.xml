@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lucky.luckyproject.mapper.UserMapper">
+
+    <select id="findByUserId" resultType="com.lucky.luckyproject.dto.UserDto">
+        SELECT USR_ID, USR_NM, EMAIL, ROLE_GRP_ID
+        FROM ST_USR_MST
+        WHERE USR_ID = #{userId}
+    </select>
+
+    <insert id="saveUser">
+        INSERT INTO ST_USR_MST (USR_ID, USR_NM, EMAIL, ROLE_GRP_ID)
+        VALUES (#{userId}, #{email}, #{name}, #{role})
+    </insert>
+
+</mapper>

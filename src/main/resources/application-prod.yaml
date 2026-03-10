@@ -1,0 +1,10 @@
+jwt: #SecretKeyGenerator에서 만든키로 적용 바람
+  secret: 2T1znt09eoSzko3WJz2ZBwXZgPZZK63Ls4O1fQft5OI=
+
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3306/your_database_name?serverTimezone=UTC&characterEncoding=UTF8
+    username: admin
+    # 암호화된 비밀번호 예시
+    password: "ENC(v3S9/G8vX1h2J3k4L5m6...)"
+    driver-class-name: org.mariadb.jdbc.Driver

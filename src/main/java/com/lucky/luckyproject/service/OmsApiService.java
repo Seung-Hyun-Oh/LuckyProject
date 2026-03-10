@@ -1,0 +1,68 @@
+package com.lucky.luckyproject.service;
+
+import com.lucky.luckyproject.dto.OmsInterfaceRequestDto;
+import com.lucky.luckyproject.dto.OmsTransferDto;
+import com.lucky.luckyproject.util.DateUtil;
+import com.lucky.luckyproject.util.RestTemplateUtil;
+import com.lucky.luckyproject.util.SignatureUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class OmsApiService {
+
+    private final RestTemplateUtil restTemplate;
+    private final String API_KEY = "OMS_CLIENT_KEY";
+    private final String SECRET_KEY = "YOUR_SECRET_KEY"; // ?úÎ™Ö ?ùÏÑ±???ÑÌïú ÎπÑÎ???
+    private final String ENDPOINT_URL = "https://stg.shop.lg.com/rest/V1/integrated-admin/orders/revise-date";
+
+    public void sendOrderReviseDate(OmsTransferDto omsTransferDto) {
+        String timestamp = DateUtil.getCurrentDateTime();
+
+        HashMap<String, Object> traceMetadata = new HashMap<>();
+        traceMetadata.put("requested_by", "integration_service");
+        traceMetadata.put("requested_at", System.currentTimeMillis());
+
+        // 1. ?îÏ≤≠ ?òÏù¥Î°úÎìú Ï°∞Î¶Ω (?µÌï© DTO Íµ¨Ï°∞)
+        OmsInterfaceRequestDto requestPayload = OmsInterfaceRequestDto.builder()
+                .interfaceId("IF_OMS_REVISE_DATE_2026") // ?∏ÌÑ∞?òÏù¥??ID
+                .orderNo(omsTransferDto.getCustPoNo())   // Ï£ºÎ¨∏ Î≤àÌò∏
+                .metadata(traceMetadata)    // Î©îÌ??∞Ïù¥??
+                .fixedData(omsTransferDto)             // Î≥∏Ï≤¥ ?∞Ïù¥??
+                .build();
+
+        // 2. ?§Îçî ?§Ï†ï (?∏Ï¶ù ?†ÌÅ∞???ÑÏöî??Í≤ΩÏö∞ Ï∂îÍ?)
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X_API_KEY", API_KEY);
+        headers.set("X_TIMESTAMP", timestamp);
+        headers.set("X_SIGNATURE", SignatureUtils.generateSignature(timestamp, SECRET_KEY));
+        // headers.setBearerAuth("YOUR_ACCESS_TOKEN"); // ?†ÌÅ∞ ?ÑÏöî ???úÏÑ±??
+
+        // 3. API ?∏Ï∂ú
+        try {
+            ResponseEntity<Object> response = restTemplate.exchangeWithHeaders(
+                    ENDPOINT_URL,
+                    HttpMethod.POST,
+                    headers,
+                    requestPayload,
+                    ResponseEntity.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                System.out.println("?ÑÏÜ° ?±Í≥µ: " + response.getBody());
+            }
+        } catch (Exception e) {
+            System.err.println("API ?∏Ï∂ú Ï§??§Î•ò Î∞úÏÉù: " + e.getMessage());
+            // ?êÎü¨ ?∏Îì§Îß?Î°úÏßÅ
+        }
+    }
+}

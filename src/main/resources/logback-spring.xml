@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- ê³µí†µ ë¡œê·¸ ?¨í„´ ?•ì˜ -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <!-- 1. Local: ì½˜ì†”??DEBUG ?ˆë²¨ê¹Œì? ?ì„¸ ì¶œë ¥ -->
+    <springProfile name="local">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <!-- 2. Dev: ?Œì¼??INFO ?ˆë²¨ë¶€??ê¸°ë¡ -->
+    <springProfile name="dev">
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/dev-app.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/dev-app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <pattern>${LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="FILE" />
+        </root>
+    </springProfile>
+
+    <!-- 3. Prod: ?Œì¼??ERROR ?ˆë²¨ë§??„ê²©?˜ê²Œ ê¸°ë¡ -->
+    <springProfile name="prod">
+        <appender name="PROD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/prod-error.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>logs/prod-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <maxHistory>30</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <pattern>${LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+        <!-- ?´ì˜ ?˜ê²½?€ ?œìŠ¤???„ì²´??WARN, ?°ë¦¬ ?œë¹„??ì½”ë“œ??ERRORë§?ê¸°ë¡ ???¸ë? ì¡°ì ˆ ê°€??-->
+        <root level="WARN">
+            <appender-ref ref="PROD_FILE" />
+        </root>
+    </springProfile>
+</configuration>

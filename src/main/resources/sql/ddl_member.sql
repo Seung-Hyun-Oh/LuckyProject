@@ -1,0 +1,8 @@
+-- ?์ ?์ด๋ธ??์ฑ
+CREATE TABLE member (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'PK',
+    name VARCHAR(100) NOT NULL COMMENT '?ด๋ฆ',
+    email VARCHAR(255) NOT NULL UNIQUE COMMENT '?ด๋ฉ”??๋ก๊ทธ?ธID)',
+    password VARCHAR(255) NOT NULL COMMENT '?”ํธ?”๋ ๋น๋?๋ฒํธ',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '?์ฑ?ผ์'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='?์ ?์ด๋ธ?;
